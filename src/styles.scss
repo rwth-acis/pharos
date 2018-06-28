@@ -1,0 +1,33 @@
+.gjs-two-color {
+  color: #f6f2fb !important;
+}
+.gjs-four-color {
+  color: #895fcb !important;
+}
+.gjs-one-bg {
+  background-color: #474747 !important;
+}
+
+.dialog{
+  margin: 16px;
+  padding: 10px;
+}
+.btn-circle {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50% !important;
+}
+.add {
+  background-image: url('assets/images/add.svg');
+  background-repeat: no-repeat;
+  background-position: center center;
+}
+.delete {
+  background-image: url('assets/images/delete_purple.svg');
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-color: transparent;
+}

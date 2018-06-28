@@ -1,0 +1,23 @@
+.footer {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  text-align: center;
+  z-index: 4;
+}
+.nav-center{
+   text-align: center;
+ }
+.nav-center > ul.nav {
+  display: inline-block;
+}
+.nav-center  > ul.nav >  li{
+  display: inline
+}
+.nav-center  > ul.nav >  li > a{
+  float: left
+}
+.tab_content {
+  margin-bottom: 50px;
+}

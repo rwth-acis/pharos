@@ -1,0 +1,26 @@
+{
+  "name": "iccd",
+  "description": "",
+  "main": "",
+  "authors": [
+    "dbonillao <delcybonilla91@gmail.com>"
+  ],
+  "license": "MIT",
+  "homepage": "",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "src/bower_components",
+    "test",
+    "tests",
+    "src/bower_components/"
+  ],
+  "dependencies": {
+    "webcomponentsjs": "webcomponents/webcomponentsjs#^1.2.0",
+    "paper-input": "PolymerElements/paper-input#^2.2.2",
+    "paper-checkbox": "PolymerElements/paper-checkbox#^2.0.4",
+    "paper-material": "^2.1.0",
+    "reqbaz-project-widget": "C:\\Users\\delcy\\WebstormProjects\\reqbaz-project-widget"
+  }
+}

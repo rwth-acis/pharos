@@ -1,0 +1,35 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+  <a class="navbar-brand" routerLink="/projects/{{options.projectKey}}">{{options.title}}</a>
+  <button  *ngIf="options.showOptions" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor01"
+          aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation" (click)="isCollapsed = !isCollapsed">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  <div *ngIf="options.showOptions" class="collapse navbar-collapse" id="navbarColor01" [ngbCollapse]="isCollapsed">
+    <ul class="navbar-nav mr-auto">
+      <li class="nav-item active">
+        <a class="nav-link"  routerLink="/projects">Home <span class="sr-only">(current)</span></a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" routerLink="/projects/{{options.projectKey}}/requirements">Requirements Features</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" routerLink="/projects/{{options.projectKey}}/feedback">Feedback</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" routerLink="/projects/{{options.projectKey}}/test">Test</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" routerLink="/projects/{{options.projectKey}}/team">Team</a>
+      </li>
+    </ul>
+    <!--<form class="form-inline my-2 my-lg-0">
+      <input class="form-control mr-sm-2" type="text" placeholder="Search">
+      <button class="btn btn-secondary my-2 my-sm-0" type="submit">Search</button>
+    </form>-->
+  </div>
+  <button class="btn btn-secondary my-2 my-sm-0" (click)="githubSingIn()">
+    <span *ngIf="githubSignedIn">GitHub: Logged In</span>
+    <span *ngIf="!githubSignedIn">GitHub Sign In</span>
+  </button>
+</nav>

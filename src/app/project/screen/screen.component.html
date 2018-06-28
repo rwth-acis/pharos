@@ -1,0 +1,77 @@
+<div *ngIf="screen" class="tab_content">
+
+  <div *ngIf="selectedTab === 'Prototype'">
+    <div *ngIf="screen.type === 'grapesjs' && githubSignedIn">
+      <app-grapesjs-editor [htmlData]="htmlString" [cssData]="cssString"></app-grapesjs-editor>
+    </div>
+  </div>
+
+  <div *ngIf="selectedTab === 'Preview'">
+    <div *ngIf="screen.type === 'image'">
+      <div class="text-right">
+        <button *ngIf="githubSignedIn" (click)="saveNewImageVersion()" class="btn btn-success btn-lg">Upload New Image</button>
+      </div>
+      <div class="container">
+        <img src="" #previewImage style="margin-top: 10px;" (load)="displayAnnotationCanvas()">
+      </div>
+    </div>
+    <div *ngIf="screen.type === 'grapesjs' && htmlData" class="container">
+      <iframe id="previewIframe" [srcdoc]="htmlData" style="width: 100%; height: 100%; min-height: 600px; margin-top: 10px;"  (load)="displayAnnotationCanvas()"></iframe>
+    </div>
+  </div>
+
+  <div [hidden]="selectedTab !== 'Annotations'" class="container" style="margin-top: 20px;">
+    <button *ngIf="githubSignedIn" [hidden]="addAnnotation" (click)="addAnnotation = !addAnnotation;" class="btn btn-primary">New Annotation</button>
+    <div [hidden]="!addAnnotation">
+      <button (click)="saveAnnotation()" class="btn btn-success">Save Annotation</button>
+      <div id="annotationContainer" class="card border-secondary">
+    </div>
+    </div>
+    <div [hidden]="addAnnotation"  style="display: inline-block;">
+      <img #annotationImage style="width: 80%; display: inline-block; vertical-align:top;">
+      <table class="table table-hover" style="margin-top: 20px;  width: 15%; display: inline-block; position: absolute; right: 0px">
+        <thead>
+        <tr>
+          <th scope="col">Date</th>
+          <th scope="col">Annotation</th>
+          <th scope="col">Author</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let annotation of annotations" (click)="showAnnotation(annotation)" [ngClass]="annotation.cssClass">
+          <td>{{annotation.formattedDate}}</td>
+          <td>{{annotation.annotationName}}</td>
+          <td>{{annotation.createdBy}}</td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div *ngIf="selectedTab === 'Version'" class="container">
+    <table class="table table-hover" style="margin-top: 20px;">
+      <thead>
+      <tr>
+        <th scope="col">Date</th>
+        <th scope="col">Message</th>
+        <th scope="col">Author</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr class="table-light" *ngFor="let version of versions" (click)="showVersion(version)">
+        <td>{{version.formattedDate}}</td>
+        <td>{{version.message}}</td>
+        <td>{{version.createdBy}}</td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+<div class="footer nav-center bg-light">
+  <ul class="nav nav-tabs">
+    <li *ngFor="let tab of tabOptions" class="nav-item">
+      <a class="nav-link" [ngClass]="tab.cssClass" (click)="onSelectTab(tab)">{{tab.title}}</a>
+    </li>
+  </ul>
+</div>

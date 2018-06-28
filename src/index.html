@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Iccd</title>
+  <base href="/">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+
+
+  <!-- This div is needed when targeting ES5.
+It will add the adapter to browsers that support customElements, which
+require ES6 classes -->
+  <div id="ce-es5-shim">
+    <script type="text/javascript">
+      if (!window.customElements) {
+        var ceShimContainer = document.querySelector('#ce-es5-shim');
+        ceShimContainer.parentElement.removeChild(ceShimContainer);
+      }
+    </script>
+    <script type="text/javascript" src="../bower_components/webcomponentsjs/custom-elements-es5-adapter.js"></script>
+
+  </div>
+  <script src="../bower_components/webcomponentsjs/webcomponents-loader.js"></script>
+
+</head>
+<body>
+  <app-root></app-root>
+</body>
+</html>

@@ -1,0 +1,11 @@
+<div class="dialog">
+  <h1>Update Screen</h1>
+  <form>
+    <div class="form-group">
+      <label>Message</label>
+      <input type="text" class="form-control" [(ngModel)]="message" name="commitMessage">
+    </div>
+    <button class="btn btn-success" (click)="onSubmit()">Create</button>
+    <button class="btn" (click)="onCancel()">Cancel</button>
+  </form>
+</div>
