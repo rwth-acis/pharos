@@ -5,7 +5,7 @@ import {UserDataService} from './dataservices/user-data.service';
 import {UserModel} from './datamodels/user.model';
 
 @Injectable()
-export class AppGlobals{
+export class AppGlobals {
 
   public projectKey = null;
   public isMaintainer;

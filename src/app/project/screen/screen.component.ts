@@ -32,6 +32,8 @@ import {AppGlobals} from '../../appGlobals';
 import '../../../../bower_components/las2peer-comment-widget/las2peer-comment-widget.html';
 import {VersionsDataService} from '../../dataservices/versions-data.service';
 import {environment} from '../../../environments/environment';
+import {Project} from '../../datamodels/project.model';
+import {ProjectsDataService} from '../../dataservices/projects-data.service';
 
 @Component({
   selector: 'app-screen',
@@ -42,6 +44,8 @@ export class ScreenComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('previewImage') previewImage: ElementRef;
   @ViewChild('annotationImage') annotationImage: ElementRef;
 
+  projectId: any;
+  project: Project;
   htmlData;
   htmlString = '';
   cssString = '';
@@ -62,6 +66,7 @@ export class ScreenComponent implements OnInit, AfterViewInit, OnDestroy {
   screenSub: Subscription;
   githubAuthSub: Subscription;
   maintainerSub: Subscription;
+  projectSub: Subscription;
 
   constructor( private route: ActivatedRoute,
                private screenDataService: ScreenDataService,
@@ -76,10 +81,19 @@ export class ScreenComponent implements OnInit, AfterViewInit, OnDestroy {
                private userDataService: UserDataService,
                private appGlobals: AppGlobals,
                private router: Router,
-               private versionsDataService: VersionsDataService) {
+               private versionsDataService: VersionsDataService,
+               private projectsDataService: ProjectsDataService) {
     this.toastr.setRootViewContainerRef(vcr);
+    this.projectId = this.route.snapshot.params.key;
+    this.projectSub = this.projectsDataService.getProject(this.projectId).subscribe(
+      project => {
+        this.project = project;
+        this.appGlobals.setAppGlobals({title: this.project.name, showOptions: true, projectKey: this.projectId});
+      }
+    );
     this.screenId = this.route.snapshot.params.screen_key;
     this.isMaintainer = this.appGlobals.isMaintainer;
+    this.appGlobals.projectKey = this.route.snapshot.params.key;
     this.screenSub = this.screenDataService.getScreen(this.screenId).subscribe(
       screen => {
         if (!this.selectedTab) {
@@ -117,6 +131,7 @@ export class ScreenComponent implements OnInit, AfterViewInit, OnDestroy {
     this.screenSub.unsubscribe();
     this.githubAuthSub.unsubscribe();
     this.maintainerSub.unsubscribe();
+    this.projectSub.unsubscribe();
   }
 
   initializeTabs() {
@@ -231,13 +246,12 @@ export class ScreenComponent implements OnInit, AfterViewInit, OnDestroy {
       this.githubDataService.getFile(this.screen.repository, this.screen.repositoryOwner, this.screen.name
         + '/' + this.screen.name + '.html').subscribe(
         (file) => {
-          this.htmlData = atob(file['content']);
           this.htmlString = atob(file['content']);
           this.githubDataService.getFile(this.screen.repository, this.screen.repositoryOwner, this.screen.name
             + '/' + this.screen.name + '.css').subscribe(
             (fileCss) => {
               this.cssString = atob(fileCss['content']);
-              this.htmlData = this.sanitizer.bypassSecurityTrustHtml('<head><style>' + this.cssString + '"</style></head>' + this.htmlData);
+              this.htmlData = this.sanitizer.bypassSecurityTrustHtml('<head><style>' + this.cssString + '</style></head><body>' + this.htmlString + '</body>');
               this.screen.gitHubShaHtml = file['sha'];
               this.screen.gitHubShaCss = file['sha'];
             }

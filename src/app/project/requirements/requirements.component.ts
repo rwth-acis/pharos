@@ -42,7 +42,6 @@ export class RequirementsComponent implements OnInit, OnDestroy{
     this.projectSub = this.projectsDataService.getProject(this.projectId).subscribe(
       project => {
         this.project = project;
-        this.appGlobals.setAppGlobals({title: this.project.name, showOptions: true, projectKey: this.projectId});
         this.rbDataService.getPoject(project.requirementsBazaarProjectId).subscribe(
           (result) => {
             this.rbProject = result;
