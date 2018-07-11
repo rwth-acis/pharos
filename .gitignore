@@ -9,9 +9,6 @@
 # dependencies
 /node_modules
 /bower_components
-/src/bower_components
-/src/app/moment
-/src/app/moment-timezone
 
 # IDEs and editors
 /.idea
