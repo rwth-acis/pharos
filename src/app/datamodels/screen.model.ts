@@ -17,7 +17,6 @@ export class ScreenModel {
   type: string;
   threadedCommentId: any;
   gitHubDirectoryName: any;
-  commentThreadsIds = [];
   gitHubUrl: string;
   gitHubShaDirectory: string;
   gitHubShaHtml: string;
@@ -25,6 +24,11 @@ export class ScreenModel {
   gitHubShaImage: string;
   imageExtension: string;
   annotationsCount: number;
+  upvotes: number;
+  downvotes: number;
+  voters = [];
+  testsCount: number;
+  projectId: number;
 
   constructor(json) {
     this.key = (json.id) ? json.$key : null;
@@ -43,14 +47,18 @@ export class ScreenModel {
     this.type = (json.type) ? json.type : null;
     this.threadedCommentId = (json.threadedCommentId) ? json.threadedCommentId : null;
     this.gitHubDirectoryName = (json.gitHubDirectoryName) ? json.gitHubDirectoryName : null;
-    this.commentThreadsIds = (json.commentThreadsIds) ? json.commentThreadsIds : [];
-    this.gitHubUrl = (json.gitHubUrl) ? json.gitHubUrl : null;
+    this.gitHubUrl = (json.gitHubUrl) ? json.gitHubUrl : '';
     this.gitHubShaDirectory = (json.gitHubShaDirectory) ? json.gitHubShaDirectory : null;
     this.gitHubShaHtml = (json.gitHubShaHtml) ? json.gitHubShaHtml : null;
     this.gitHubShaCss = (json.gitHubShaCss) ? json.gitHubShaCss : null;
     this.gitHubShaImage = (json.gitHubShaImage) ? json.gitHubShaImage : null;
-    this.imageExtension = (json.imageExtension) ? json.imageExtension : '';
+    this.imageExtension = (json.imageExtension) ? json.imageExtension : 'png';
     this.annotationsCount = (json.annotationsCount) ? json.annotationsCount : 0;
+    this.upvotes = (json.upvotes) ? json.upvotes : 0;
+    this.downvotes = (json.downvotes) ? json.downvotes : 0;
+    this.voters = (json.voters) ? json.voters : [];
+    this.testsCount = (json.testsCount) ? json.testsCount : 0;
+    this.projectId = (json.projectId) ? json.projectId : '';
   }
 
 }

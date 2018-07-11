@@ -1,0 +1,35 @@
+<div *ngIf="test" class="container">
+  <div *ngIf="view==='start'" class="align-middle" style="margin: 200px 0px 0px 200px;">
+    <h3>Hello!</h3>
+    <p>You have been invited to participate in a short test.</p>
+    <button class="btn btn-primary" (click)="view='introduction'">Start</button>
+  </div>
+
+  <div *ngIf="view==='introduction'" class="align-middle" style="margin: 200px 0px 0px 200px;">
+    <h5>{{test.introduction}}</h5>
+    <button class="btn btn-primary" (click)="view='survey'">Next</button>
+  </div>
+
+  <div *ngIf="view==='survey'" style="margin-top: 100px;">
+    <div style="display:  inline-block; width: 48%; vertical-align: middle;">
+      <img [src]="imageSrc" style="width: 100%;" (click)="view='image'">
+    </div>
+    <div style="display:  inline-block; width: 48%; height: 100%; vertical-align: middle;">
+      <div *ngFor="let q of test.questions; let i = index" class="form-group border-secondary" style="border: 1px solid; padding: 20px; ">
+        <label>{{q}}</label>
+        <input type="text" class="form-control" [(ngModel)]="answers[i]">
+      </div>
+      <button class="btn btn-outline-secondary" (click)="onSubmit()">Save</button>
+    </div>
+  </div>
+
+  <div *ngIf="view==='image'" style="margin-top: 100px;">
+    <button class="btn back" style="width: 80px; height: 22px; margin: 10px; background-size: 18px 20px;" (click)="view='survey'">Back</button>
+    <img [src]="imageSrc" style="width: 100%;">
+  </div>
+
+  <div *ngIf="view==='end'" class="align-middle" style="margin: 200px 0px 0px 200px;">
+    <h3>Thank you!</h3>
+    We appreciate your feedback
+  </div>
+</div>

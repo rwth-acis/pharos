@@ -11,15 +11,19 @@ import {ProjectService} from '../../services/project.service';
 export class NewProjectComponent implements OnInit {
 
   project: Project;
+  loading = false;
 
   constructor(private activeModal: NgbActiveModal,
               private projectService: ProjectService) {
     this.project = new Project({});
   }
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.loading = false;
+  }
 
   onSubmit() {
+    this.loading = true;
     this.projectService.createProject(this.project).then(
       (result) => {
         this.activeModal.close({result: 'success', project: result});
@@ -32,6 +36,7 @@ export class NewProjectComponent implements OnInit {
   }
 
   onCancel() {
+    this.loading = false;
     this.activeModal.close({result: 'close'});
   }
 }

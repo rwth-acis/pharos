@@ -12,33 +12,43 @@ import {ProjectService} from '../../services/project.service';
 export class NewScreenComponent implements OnInit {
   @Input() githubRepoName;
   @Input() githubRepoOwner;
+  @Input() projectId;
 
   screen: ScreenModel;
   public files: UploadFile[] = [];
   file;
   showImgTypeErrorMessage = false;
+  showNoFileErrorMessage = false;
+  loading = false;
 
   constructor(private activeModal: NgbActiveModal,
               private projectService: ProjectService) {
-    this.screen = new ScreenModel({type: 'image'});
   }
 
   ngOnInit() {
+    this.screen = new ScreenModel({projectId: this.projectId, type: 'image'});
+    this.loading = false;
     this.screen.repository = this.githubRepoName;
     this.screen.repositoryOwner = this.githubRepoOwner;
   }
 
   onSubmit() {
+    this.loading = true;
+    this.showNoFileErrorMessage = false;
     if (this.screen.type === 'image') {
-      this.projectService.createScreenImage(this.githubRepoName, this.githubRepoOwner, this.screen, this.file, this.screen.description).then(
-        (result) => {
-          this.activeModal.close({result: 'success', screen: result});
-        },
-        (error) => {
-          console.log(error);
-          this.activeModal.close({result: 'error', error: error});
-        }
-      );
+      if (this.file) {
+        this.projectService.createScreenImage(this.githubRepoName, this.githubRepoOwner, this.screen, this.file, this.screen.description).then(
+          (result) => {
+            this.activeModal.close({result: 'success', screen: result});
+          },
+          (error) => {
+            console.log(error);
+            this.activeModal.close({result: 'error', error: error});
+          }
+        );
+      } else {
+        this.showNoFileErrorMessage = true;
+      }
     } else if (this.screen.type === 'grapesjs') {
       this.projectService.createScreenGrapesJS(this.githubRepoName, this.githubRepoOwner, this.screen, '', '', this.screen.description).then(
         (result) => {
@@ -53,6 +63,7 @@ export class NewScreenComponent implements OnInit {
   }
 
   onCancel() {
+    this.loading = false;
     this.activeModal.close({result: 'close'});
   }
 

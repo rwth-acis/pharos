@@ -9,7 +9,7 @@ import {
   ViewChild,
   ViewContainerRef
 } from '@angular/core';
-import {ActivatedRoute} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {ScreenDataService} from '../../dataservices/screen-data.service';
 import {Subscription} from 'rxjs/Subscription';
 import {ScreenModel} from '../../datamodels/screen.model';
@@ -23,8 +23,15 @@ import {VersionModel} from '../../datamodels/version.model';
 import {DomSanitizer} from '@angular/platform-browser';
 import * as html2canvas from 'html2canvas';
 import * as simpleDrawingBoard from 'simple-drawing-board';
-import {FeedbackDataService} from '../../dataservices/feedback-data.service';
+import {AnnotationsDataService} from '../../dataservices/annotations-data.service';
+import {AnnotationModel} from '../../datamodels/annotation.model';
+import {ConfirmationDialogComponent} from '../../utils/confirmation-dialog/confirmation-dialog.component';
+import {UserDataService} from '../../dataservices/user-data.service';
+import {AppGlobals} from '../../appGlobals';
 
+import '../../../../bower_components/las2peer-comment-widget/las2peer-comment-widget.html';
+import {VersionsDataService} from '../../dataservices/versions-data.service';
+import {environment} from '../../../environments/environment';
 
 @Component({
   selector: 'app-screen',
@@ -46,11 +53,15 @@ export class ScreenComponent implements OnInit, AfterViewInit, OnDestroy {
   versions = [];
   annotations = [];
   addAnnotation = false;
+  currentAnnotation: AnnotationModel;
+  isMaintainer = false;
+  selectedVersion: VersionModel;
+  serviceNode;
 
   // Subscriptions
   screenSub: Subscription;
   githubAuthSub: Subscription;
-  feedbackSub: Subscription;
+  maintainerSub: Subscription;
 
   constructor( private route: ActivatedRoute,
                private screenDataService: ScreenDataService,
@@ -61,23 +72,41 @@ export class ScreenComponent implements OnInit, AfterViewInit, OnDestroy {
                private toastr: ToastsManager,
                private vcr: ViewContainerRef,
                private sanitizer: DomSanitizer,
-               private feedbackDataService: FeedbackDataService) {
+               private annotationsDataService: AnnotationsDataService,
+               private userDataService: UserDataService,
+               private appGlobals: AppGlobals,
+               private router: Router,
+               private versionsDataService: VersionsDataService) {
     this.toastr.setRootViewContainerRef(vcr);
     this.screenId = this.route.snapshot.params.screen_key;
+    this.isMaintainer = this.appGlobals.isMaintainer;
     this.screenSub = this.screenDataService.getScreen(this.screenId).subscribe(
       screen => {
-        this.screen = screen;
-        this.initializeTabs();
-        this.getCurrentScreenData();
-        this.getVersions();
-        this.getAnnotations();
-        // TODO: getComments();
+        if (!this.selectedTab) {
+          this.screen = screen;
+          this.initializeTabs();
+          this.getCurrentScreenData();
+          this.getVersions();
+          this.getAnnotations();
+          this.selectedVersion = this.versions[0];
+        }
       }
     );
     this.githubSignedIn = this.githubDataService.signedIn;
+    this.checkLoginStatus();
     this.githubAuthSub = this.githubDataService.$githubAuth.subscribe(
-      (result) => { this.githubSignedIn = result; }
+      (result) => {
+        this.githubSignedIn = result;
+        this.checkLoginStatus();
+      }
     );
+    this.maintainerSub = this.userDataService.$isMaintainer.subscribe(
+      (result) => {
+        this.isMaintainer = result;
+        this.initializeTabs();
+      }
+    );
+    this.serviceNode = environment.comment_service.service_node;
   }
 
   ngOnInit() {}
@@ -87,39 +116,80 @@ export class ScreenComponent implements OnInit, AfterViewInit, OnDestroy {
   ngOnDestroy() {
     this.screenSub.unsubscribe();
     this.githubAuthSub.unsubscribe();
-    this.feedbackSub.unsubscribe();
+    this.maintainerSub.unsubscribe();
   }
 
   initializeTabs() {
     this.tabOptions = [];
     this.selectedTab = 'Preview';
     this.tabOptions.push({title: 'Preview', cssClass: ' active'});
-    this.tabOptions.push({title: 'Annotations', cssClass: ''});
-    this.tabOptions.push({title: 'Comments', cssClass: ''});
     if (this.screen.type !== 'image')
       this.tabOptions.push({title: 'Prototype', cssClass: ''});
+    this.tabOptions.push({title: 'Annotations', cssClass: ''});
+    this.tabOptions.push({title: 'Comments', cssClass: ''});
+    if (this.isMaintainer)
+      this.tabOptions.push({title: 'Tests', cssClass: ''});
     this.tabOptions.push({title: 'Version', cssClass: ''});
   }
 
   onSelectTab(tab) {
-    this.selectedTabStyle(tab);
-    switch (tab.title) {
-      case 'Preview':
-        if (this.htmlString === '') {
-          this.getCurrentScreenData();
+    if (this.selectedTab === 'Prototype' && this.githubSignedIn) {
+      const modal = this.modal.open(ConfirmationDialogComponent);
+      modal.componentInstance.message = 'Do you want to leave before saving your changes?';
+      modal.result.then(
+        (data) => {
+          if (data.result === 'accept') {
+            this.selectedTabStyle(tab);
+            switch (tab.title) {
+              case 'Preview':
+                /*if (this.htmlString === '') {
+                  this.getCurrentScreenData();
+                }*/
+                break;
+              case 'Annotations':
+                this.getAnnotations();
+                break;
+              case 'Comments':
+                break;
+              case 'Prototype':
+                break;
+              case 'Version':
+                this.getVersions();
+                break;
+              case 'Tests':
+                this.getVersions();
+                break;
+            }
+          } else {
+            return;
+          }
+        },
+        (error) => {
+          console.log(error);
         }
-        break;
-      case 'Annotations':
-        this.getAnnotations();
-        break;
-      case 'Comments':
-        // TODO this.getComments();
-        break;
-      case 'Prototype':
-        break;
-      case 'Version':
-        this.getVersions();
-        break;
+      );
+    } else {
+      this.selectedTabStyle(tab);
+      switch (tab.title) {
+        case 'Preview':
+          /*if (this.htmlString === '') {
+            this.getCurrentScreenData();
+          }*/
+          break;
+        case 'Annotations':
+          this.getAnnotations();
+          break;
+        case 'Comments':
+          break;
+        case 'Prototype':
+          break;
+        case 'Version':
+          this.getVersions();
+          break;
+        case 'Tests':
+          this.getVersions();
+          break;
+      }
     }
   }
 
@@ -153,6 +223,7 @@ export class ScreenComponent implements OnInit, AfterViewInit, OnDestroy {
       this.githubDataService.getFile(this.screen.repository, this.screen.repositoryOwner, this.screen.name
         + '/' + this.screen.name + '.' + this.screen.imageExtension).subscribe(
         (file) => {
+          this.screen.gitHubShaImage = file['sha'];
           this.previewImage.nativeElement.src = 'data:image/' + this.screen.imageExtension + ';base64,' + file['content'];
         }
       );
@@ -167,6 +238,8 @@ export class ScreenComponent implements OnInit, AfterViewInit, OnDestroy {
             (fileCss) => {
               this.cssString = atob(fileCss['content']);
               this.htmlData = this.sanitizer.bypassSecurityTrustHtml('<head><style>' + this.cssString + '"</style></head>' + this.htmlData);
+              this.screen.gitHubShaHtml = file['sha'];
+              this.screen.gitHubShaCss = file['sha'];
             }
           );
         }
@@ -175,12 +248,11 @@ export class ScreenComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   getVersions() {
-    this.projectService.getScreenVersions(this.screen).then(
-      (versions) => { this.versions = versions; }
-    );
+    this.versions = this.versionsDataService.getVersionsByScreenId(this.screenId);
   }
 
   showVersion (version) {
+    this.selectedVersion = version;
     if (this.screen.type === 'image') {
       this.projectService.getVersionImage(this.screen, version).then(
         (result) => {
@@ -234,23 +306,29 @@ export class ScreenComponent implements OnInit, AfterViewInit, OnDestroy {
     const canvas = <HTMLCanvasElement> document.getElementById('annotationCanvas');
     anotationImage = canvas.toDataURL().replace(/data:.*?;base64,/g, '');
     this.projectService.saveAnnotation(this.screen, anotationImage).then(
-      (result) => { this.toastr.success('Annotation saved.', 'Success!'); },
+      (result) => {
+        this.toastr.success('Annotation saved.', 'Success!');
+        this.selectedTab = 'Preview';
+        this.selectedTabStyle(this.tabOptions[0]);
+        this.addAnnotation = false;
+        this.getAnnotations();
+        },
     (error) => { this.toastr.error('We could not save your annotation.', 'There was an error'); }
     );
   }
 
   getAnnotations() {
     this.addAnnotation = false;
-    this.feedbackSub = this.feedbackDataService.getAnnotations().subscribe(
-      (annotations) => {
-        this.annotations = annotations;
-        this.showAnnotation(this.annotations[0]);
-        this.selectedAnnotationStyle(this.annotations[0]);
-      }
-    );
+    this.annotations = this.annotationsDataService.getAnnotationsByScreenName(this.screen.name);
+    if (this.annotations.length > 0) {
+      this.currentAnnotation = this.annotations[0];
+      this.showAnnotation(this.annotations[0]);
+      this.selectedAnnotationStyle(this.annotations[0]);
+    }
   }
 
   showAnnotation(annotation) {
+    this.currentAnnotation = annotation;
     return this.githubDataService.getFile(annotation.repository, annotation.repositoryOwner, annotation.screenName + '/annotations/' + annotation.annotationName + '.png').subscribe(
       (result) => {
         this.annotationImage.nativeElement.src = 'data:image/png;base64,' + result['content'];
@@ -266,6 +344,12 @@ export class ScreenComponent implements OnInit, AfterViewInit, OnDestroy {
       } else {
         this.annotations[i].cssClass = 'table-light';
       }
+    }
+  }
+
+  checkLoginStatus() {
+    if (!this.githubSignedIn) {
+      this.router.navigate(['login']);
     }
   }
 }

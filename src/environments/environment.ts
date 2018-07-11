@@ -14,7 +14,12 @@ export const environment = {
     messagingSenderId: '349853320525'
   },
   github: {
-    clientId: '92303fd8861b6d3548a7',
-    clientSecret: '27854cf0d2cfa6dac5deceb1061e6a47f5c51532'
+    clientId: '92303fd8861b6d3548a7'
+  },
+  learning_layers: {
+    clientId: '40998356-803f-4cd9-b52d-67ddf739944d'
+  },
+  comment_service: {
+    service_node: 'http://DCBO.fritz.box:8080'
   }
 };

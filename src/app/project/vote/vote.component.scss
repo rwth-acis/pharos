@@ -1,0 +1,24 @@
+.upvote {
+  background-image: url('/../../../assets/images/like.svg');
+  background-size: 100%;
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-color: transparent;
+}
+
+.downvote {
+  background-image: url('/../../../assets/images/dislike.svg');
+  background-size: 100%;
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-color: transparent;
+}
+
+.vote-button {
+  width: 30px;
+  height: 30px;
+}
+
+.votes-tag {
+  font-size: large;
+}

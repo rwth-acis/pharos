@@ -23,12 +23,6 @@
           Prototype with GrapesJS
         </label>
       </div>
-      <div class="form-check">
-        <label class="form-check-label">
-          <input type="radio" class="form-check-input" name="direwolf" id="direwolf" value="direwolf" [(ngModel)]="screen.type">
-          Prototype with DireWolf
-        </label>
-      </div>
     </fieldset>
     <div *ngIf="screen.type==='image'" class="form-check">
       <div class="center">
@@ -56,8 +50,14 @@
       <div *ngIf="showImgTypeErrorMessage" class="alert-danger" style="padding: 6px;">
         Please upload a file with one of the following extensions: <br/> .png .jpeg .jpg or .svg
       </div>
+      <div *ngIf="showNoFileErrorMessage" class="alert-danger" style="padding: 6px;">
+      Please upload an image
+    </div>
     </div>
     <button class="btn btn-success" (click)="onSubmit()">Save Changes</button>
     <button class="btn" (click)="onCancel()">Cancel</button>
   </form>
+  <div [hidden]="!loading" class="progress" style="margin-top: 10px;">
+    <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" style="width: 75%"></div>
+  </div>
 </div>

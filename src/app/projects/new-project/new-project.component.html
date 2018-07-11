@@ -13,11 +13,14 @@
       <label for="description">Description</label>
       <input type="text" class="form-control" id="description" [(ngModel)]="project.description" name="projectDescription">
     </div>
-    <div class="form-group">
+    <!--<div class="form-group">
       <label for="image">Cover Image</label>
       <input type="file" class="form-control-file" id="image" aria-describedby="fileHelp" [(ngModel)]="project.image" name="ProjectImage">
-    </div>
+    </div>-->
     <button class="btn btn-success" (click)="onSubmit()">Create</button>
     <button class="btn" (click)="onCancel()">Cancel</button>
   </form>
+  <div [hidden]="!loading" class="progress" style="margin-top: 10px;">
+    <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" style="width: 75%"></div>
+  </div>
 </div>

@@ -8,8 +8,10 @@ import 'rxjs/add/observable/forkJoin';
 import {ScreenModel} from '../datamodels/screen.model';
 import {ScreenDataService} from '../dataservices/screen-data.service';
 import {VersionModel} from '../datamodels/version.model';
-import {FeedbackDataService} from '../dataservices/feedback-data.service';
+import {AnnotationsDataService} from '../dataservices/annotations-data.service';
 import {AnnotationModel} from '../datamodels/annotation.model';
+import {CommentDataService} from '../dataservices/comment-data.service';
+import {VersionsDataService} from '../dataservices/versions-data.service';
 
 @Injectable()
 export class ProjectService {
@@ -18,20 +20,21 @@ export class ProjectService {
               private screenDataService: ScreenDataService,
               private githubDataService: GithubDataService,
               private requirementsBazzarDataService: RequirementsBazaarDataService,
-              /*private threadedCommentdataService: ThreadedCommentDataService,*/
-              private feedbackDataService: FeedbackDataService) { }
+              private commentdataService: CommentDataService,
+              private annotationsDataService: AnnotationsDataService,
+              private versionsDataService: VersionsDataService) { }
 
   createProject(project: Project) {
     const self = this;
     return Observable.forkJoin([
       this.githubDataService.createRepo(project.name, project.description),
-      // TODO: create RB project
-      // TODO: create thread comment
+      this.commentdataService.createThread()
     ]).toPromise().then(
       (results) => {
           project.gitHubRepoName = results[0]['name'];
           project.gitHubUrl = results[0]['html_url'];
           project.createdBy = results[0]['owner']['login'];
+          project.threadedCommentId = results[1];
           return self.projectDataService.createProject(project).then(
             (result) => { return result; },
             (error) => { console.log('Error: Could not create project on the backend. ', error); }
@@ -44,10 +47,6 @@ export class ProjectService {
     const self = this;
     return Observable.forkJoin([
       self.githubDataService.deleteRepo(project.gitHubRepoName, project.createdBy),
-      // TODO: delete RB project
-      // TODO: delete thread comment
-      // TODO: delete comment threads
-      // TODO: delete all related screen entries on backend
     ]).toPromise().then(
       (results) => {
         return self.projectDataService.deleteProject(project.$key).then(
@@ -62,13 +61,30 @@ export class ProjectService {
     const self = this;
     return Observable.forkJoin([
       self.githubDataService.createFile(githubRepoName, owner, image, screen.name + '/' + screen.name + '.' + screen.imageExtension, message),
-      // TODO: create comment thread
+      self.commentdataService.createThread()
     ]).toPromise().then(
       (result) => {
         screen.gitHubShaDirectory = (result[0]['commit']['parents'][0]) ? result[0]['commit']['parents'][0]['sha'] : '';
         screen.gitHubShaImage = result[0]['content']['sha'];
+        screen.gitHubUrl = result[0]['content']['_links']['html'];
+        screen.createdBy = result[0]['commit']['author']['name'];
+        screen.threadedCommentId = result[1];
         self.screenDataService.createScreen(screen).then(
-          (result) => { return result; },
+          (result1) => {
+            let version = new VersionModel({
+              date: result[0]['commit']['committer']['date'],
+              commitShaImage: result[0]['commit']['sha'],
+              contentShaImage: result[0]['content']['sha'],
+              message: message,
+              createdBy: screen.createdBy,
+              screenId: result1
+            });
+            self.versionsDataService.createVersion(version).then(
+              (result2) => {
+                return result2;
+              }
+            );
+            },
           (error) => { console.log('Error: Could not create screen on the backend. ', error); }
         );
       }
@@ -79,14 +95,34 @@ export class ProjectService {
     const self = this;
     return Observable.forkJoin([
       self.createGrapesJSGithubFiles(githubRepoName, owner, screen, btoa(html), btoa(css), message),
-      // TODO: create comment thread
+      self.commentdataService.createThread()
     ]).toPromise().then(
       (results) => {
        screen.gitHubShaDirectory = results[0]['directorySha'];
-        screen.gitHubShaHtml = results[0]['htmlSha'];
-        screen.gitHubShaCss = results[0]['cssSha'];
+        screen.gitHubShaHtml = results[0]['htmlContentSha'];
+        screen.gitHubShaCss = results[0]['cssContentSha'];
+        screen.gitHubUrl = results[0]['url'];
+        screen.createdBy = results[0]['createdBy'];
+        screen.threadedCommentId = results[1];
         self.screenDataService.createScreen(screen).then(
-          (result) => { return result; },
+          (result1) => {
+            let version = new VersionModel({
+              date: results[0]['date'],
+              commitShaHtml: results[0]['htmlSha'],
+              commitShaCss: results[0]['cssSha'],
+              contentShaHtml: screen.gitHubShaHtml,
+              contentShaCss: screen.gitHubShaCss,
+              message: message,
+              createdBy: screen.createdBy,
+              screenId: result1
+            });
+            self.versionsDataService.createVersion(version).then(
+              (result2) => {
+                return result2;
+              }
+            );
+            return result1;
+            },
           (error) => { console.log('Error: Could not create screen on the backend. ', error); }
         );
       }
@@ -96,12 +132,17 @@ export class ProjectService {
   createGrapesJSGithubFiles(githubRepoName, owner,  screen: ScreenModel, html, css, message) {
     return this.githubDataService.createFile(githubRepoName, owner, html, screen.name + '/' + screen.name + '.html', message).toPromise().then(
       (htmlFile) => {
-        const htmlSha = htmlFile['content']['sha'];
+        const htmlSha = htmlFile['commit']['sha'];
         const directorySha = (htmlFile['commit']['parents'][0]) ? htmlFile['commit']['parents'][0]['sha'] : '';
+        const url = htmlFile['content']['_links']['html'];
+        const createdBy = htmlFile['commit']['author']['name'];
+        const date = htmlFile['commit']['committer']['date'];
+        const htmlContentSha = htmlFile['content']['sha'];
         return this.githubDataService.updateFile(githubRepoName, owner, css, screen.name + '/' + screen.name + '.css', message, screen.gitHubShaDirectory).toPromise().then(
           (cssFile) => {
-            const cssSha = cssFile['content']['sha'];
-            return {directorySha: directorySha, htmlSha: htmlSha, cssSha: cssSha};
+            const cssSha = cssFile['commit']['sha'];
+            const cssContentSha = cssFile['content']['sha'];
+            return {directorySha: directorySha, htmlSha: htmlSha, cssSha: cssSha, url: url, createdBy: createdBy, date: date, htmlContentSha: htmlContentSha, cssContentSha: cssContentSha};
           }
         );
       },
@@ -113,7 +154,6 @@ export class ProjectService {
     const self = this;
     return Observable.forkJoin([
       self.githubDataService.deleteFile(githubRepoName, owner, screen.name + '/' + screen.name + '.' + screen.imageExtension, 'Deleting Screen.', screen.gitHubShaImage),
-      // TODO: delete comment threads
     ]).toPromise().then(
       (results) => {
         return self.screenDataService.deleteScreen(screen.$key).then(
@@ -128,7 +168,6 @@ export class ProjectService {
     const self = this;
     return Observable.forkJoin([
       self.deleteGrapesJSGitHubFiles(githubRepoName, screen.repositoryOwner, screen, 'Deleting Screen.'),
-      // TODO: delete comment threads
     ]).toPromise().then(
       (results) => {
         return self.screenDataService.deleteScreen(screen.$key).then(
@@ -153,10 +192,27 @@ export class ProjectService {
     ]).toPromise().then(
       (results) => {
         screen.gitHubShaDirectory = results[0]['directorySha'];
-        screen.gitHubShaHtml = results[0]['htmlSha'];
-        screen.gitHubShaCss = results[0]['cssSha'];
+        screen.gitHubShaHtml = results[0]['htmlContentSha'];
+        screen.gitHubShaCss = results[0]['cssContentSha'];
         return this.screenDataService.updateScreen(screen.$key, screen).then(
-          (result) => { return result; },
+          (result1) => {
+            let version = new VersionModel({
+              date: results[0]['date'],
+              commitShaHtml: results[0]['htmlSha'],
+              commitShaCss: results[0]['cssSha'],
+              contentShaHtml: results[0]['htmlContentSha'],
+              contentShaCss: results[0]['cssContentSha'],
+              message: message,
+              createdBy: results[0]['createdBy'],
+              screenId: result1
+            });
+            this.versionsDataService.createVersion(version).then(
+              (result2) => {
+                return result2;
+              }
+            );
+            return result1;
+            },
           (error) => { console.log('Error: Could not update screen on the backend. ', error); }
         );
       }
@@ -166,12 +222,16 @@ export class ProjectService {
   updateGrapesJSScreenFiles(githubRepoName, owner, screen: ScreenModel, html, css, message) {
     return this.githubDataService.updateFile(githubRepoName, owner, html, screen.name + '/' + screen.name + '.html', message, screen.gitHubShaHtml).toPromise().then(
       (htmlFile) => {
-        const htmlSha = htmlFile['content']['sha'];
+        const htmlSha = htmlFile['commit']['sha'];
         const directorySha = htmlFile['commit']['parents'][0];
+        const createdBy = htmlFile['commit']['author']['name'];
+        const date = htmlFile['commit']['committer']['date'];
+        const htmlContentSha = htmlFile['content']['sha'];
         return this.githubDataService.updateFile(githubRepoName, owner, css, screen.name + '/' + screen.name + '.css', message, screen.gitHubShaCss).toPromise().then(
           (cssFile) => {
-            const cssSha = cssFile['content']['sha'];
-            return {directorySha: directorySha, htmlSha: htmlSha, cssSha: cssSha};
+            const cssSha = cssFile['commit']['sha'];
+            const cssContentSha = cssFile['content']['sha'];
+            return {directorySha: directorySha, htmlSha: htmlSha, cssSha: cssSha, createdBy: createdBy, date: date, htmlContentSha: htmlContentSha, cssContentSha: cssContentSha};
           }
         );
       }
@@ -179,60 +239,31 @@ export class ProjectService {
   }
 
   updateImageScreen(githubRepoName, owner, screen: ScreenModel, image, message) {
-    // TODO: check image extension has been updated
     return this.githubDataService.updateFile(githubRepoName, owner, image, screen.name + '/' + screen.name + '.' + screen.imageExtension, message, screen.gitHubShaImage).toPromise().then(
       (imageFile) => {
         screen.gitHubShaImage = imageFile['content']['sha'];
         screen.gitHubShaDirectory = imageFile['commit']['parents'][0];
         return this.screenDataService.updateScreen(screen.$key, screen).then(
-          (result) => { return result; },
+          (result1) => {
+            let version = new VersionModel({
+              date: imageFile['commit']['committer']['date'],
+              commitShaImage: imageFile['commit']['sha'],
+              contentShaImage: screen.gitHubShaImage,
+              message: message,
+              createdBy: imageFile['commit']['author']['name'],
+              screenId: result1
+            });
+            this.versionsDataService.createVersion(version).then(
+              (result2) => {
+                return result2;
+              }
+            );
+            return result1;
+          },
           (error) => { console.log('Error: Could not update screen on the backend. ', error); }
         );
       }
     );
-  }
-
-  getScreenVersions(screen) {
-    let versions: Array<VersionModel> = [];
-    if (screen.type === 'grapesjs') {
-      return this.githubDataService.getCommits(screen.repository, screen.repositoryOwner,  screen.name + '/' + screen.name + '.html').toPromise().then(
-        (resultHtml) => {
-          const htmlArray = Object.values(resultHtml);
-          for (let i = 0; i < htmlArray.length; i++) {
-            versions.push(new VersionModel({
-              date: htmlArray[i]['commit']['committer']['date'],
-              commitShaHtml: htmlArray[i]['sha'],
-              message: htmlArray[i]['commit']['message'],
-              createdBy: htmlArray[i]['commit']['author']['name']
-            }));
-          }
-          return this.githubDataService.getCommits(screen.repository, screen.repositoryOwner, screen.name + '/' + screen.name + '.css').toPromise().then(
-            (resultCss) => {
-              const cssArray = Object.values(resultCss);
-              for (let i = 0; i < cssArray.length; i++) {
-                versions[i].commitShaCss = cssArray[i]['sha'];
-              }
-              return versions;
-            }
-          );
-        }
-      );
-    } else if (screen.type === 'image') {
-      return this.githubDataService.getCommits(screen.repository, screen.repositoryOwner, screen.name + '/' + screen.name + '.' + screen.imageExtension).toPromise().then(
-        (resultImage) => {
-          const imageArray = Object.values(resultImage);
-          for (let i = 0; i < imageArray.length; i++) {
-            versions.push(new VersionModel({
-              date: imageArray[i]['commit']['committer']['date'],
-              commitShaImage: imageArray[i]['sha'],
-              message: imageArray[i]['commit']['message'],
-              createdBy: imageArray[i]['commit']['author']['name']
-            }));
-          }
-          return versions;
-        }
-      );
-    }
   }
 
   getVersionGrapesJs(screen, version) {
@@ -272,7 +303,7 @@ export class ProjectService {
             createdBy: annotationFile['commit']['author']['name'],
             date: annotationFile['commit']['author']['date']
           });
-          return this.feedbackDataService.saveAnnotation(annotation).then(
+          return this.annotationsDataService.saveAnnotation(annotation).then(
             (result) => {
               console.log('screen', screen, result);
               screen.annotationsCount++;

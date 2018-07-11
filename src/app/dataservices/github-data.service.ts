@@ -2,12 +2,13 @@ import { Injectable } from '@angular/core';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {environment} from '../../environments/environment';
 import {Subject} from 'rxjs/Subject';
+import {AngularFireDatabase, FirebaseListObservable, FirebaseObjectObservable} from 'angularfire2/database-deprecated';
+import {VersionModel} from '../datamodels/version.model';
 
 @Injectable()
 export class GithubDataService {
 
   private path = 'https://api.github.com/';
-  private header: any;
 
   httpOptions;
   user: any;
@@ -26,41 +27,44 @@ export class GithubDataService {
         'Content-Type': 'application/json'
       })
     };
+    const token = localStorage.getItem('oauth2_github');
+    const  timestamp = localStorage.getItem('timestamp_oauth2_github');
+    const diff = Date.now() - new Date(timestamp).getTime();
+    if (token && diff < 3600000) {
+      this.token = token;
+      this.httpOptions = {
+        headers: new HttpHeaders({
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'Authorization': 'bearer ' + token
+
+        })
+      };
+      this.githubAuth.next(true);
+      this.signedIn = true;
+      this.getUser();
+    }
   }
 
   getCode() {
     window.location.href = 'https://github.com/login/oauth/authorize?client_id=' + environment.github.clientId + '&scope=repo%20delete_repo';
   }
 
-  getToken(code) {
-    const params = {
-      client_id: environment.github.clientId,
-      client_secret: environment.github.clientSecret,
-      code: code
-    }
-    this.http.post('https://github.com/login/oauth/access_token', params, this.httpOptions).subscribe(
-      (token) => {
-        if (token['access_token']) {
-          this.token = token;
-          this.httpOptions = {
-            headers: new HttpHeaders({
-              'Access-Control-Allow-Origin': '*',
-              'Accept': 'application/json',
-              'Content-Type': 'application/json',
-              'Authorization': 'token ' + token['access_token'],
-              'tokenType': token['token_type'],
+  setToken(token) {
+    this.token = token;
+    localStorage.setItem('oauth2_github', this.token);
+    localStorage.setItem('timestamp_oauth2_github', new Date().toString());
+    this.httpOptions = {
+      headers: new HttpHeaders({
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Authorization': 'bearer ' + token
 
-            })
-          };
-          this.getUser();
-          this.signedIn = true;
-          this.githubAuth.next(true);
-        } else {
-          console.log('Could not sign in with GitHub.', token);
-        }
-        },
-      (error) => { this.handleError(error); }
-    );
+      })
+    };
+    this.getUser();
+    this.signedIn = true;
+    this.githubAuth.next(true);
   }
 
   getUser() {

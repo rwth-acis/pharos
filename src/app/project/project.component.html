@@ -1,10 +1,8 @@
 <div *ngIf="project" class="container">
   <h1>{{project.name}}</h1>
-  <button *ngIf="githubSignedIn" type="button" class="btn btn-primary btn-circle add" (click)="addScreen()"></button>
-  <!--<button (click)="getBodyElements()">Test</button>-->
-  <!--<div id="screen" [innerHTML]="samplePage" style="margin: 10%; height: 40%; width: 40%;" #screen (change)="onScreenChange()"> </div>-->
+  <button *ngIf="githubSignedIn" type="button" class="btn btn-primary btn-bottom" (click)="addScreen()">Create Screen</button>
     <div *ngFor="let screen of screens" class="card m-3 card-screen">
-      <a (click)="goToScreen(screen.$key)" style="text-decoration:none;"><h3 class="card-header">{{screen.name}}</h3></a>
+      <a (click)="goToScreen(screen.$key)" style="text-decoration:none; cursor: pointer;"><h3 class="card-header">{{screen.name}}</h3></a>
       <div class="card-body">
         <h6 class="card-subtitle text-muted">{{screen.creationDate}}</h6>
       </div>
@@ -15,8 +13,8 @@
         <p class="card-text">{{screen.description}}</p>
       </div>
       <div class="card-body">
-        <a (click)="goToScreen(screen.$key)" class="card-link">Go to Screen</a>
-        <a href="{{screen.gitHubUrl}}" class="card-link">GitHub</a>
+        <a (click)="goToScreen(screen.$key)" class="card-link"  style="cursor: pointer;">Go to Screen</a>
+        <a [href]="screen.gitHubUrl" class="card-link">GitHub</a>
         <button *ngIf="githubSignedIn" class="btn delete" (click)="deleteScreen(screen)" style="width: 18px; height: 22px; float: right; background-size: 18px 20px;"></button>
       </div>
       <div class="card-footer text-muted">
@@ -24,6 +22,3 @@
       </div>
   </div>
 </div>
-<!--<div style="padding: 20px; margin: 6px;">
-  <app-grapesjs-editor></app-grapesjs-editor>
-</div>-->

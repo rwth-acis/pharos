@@ -1,0 +1,9 @@
+<div class="dialog">
+  <h1>Share your test!</h1>
+  <div class="form-group">
+    <label>Link</label>
+    <input type="text" class="form-control" [value]="testLink" name="testLink" [readonly]="true" #linkInput>
+    <button class="btn copy" style="width: 18px; height: 22px; float: right; background-size: 18px 20px;" (click)="copyInputMessage(linkInput)"></button>
+  </div>
+  <button class="btn" (click)="onClose()">Close</button>
+</div>

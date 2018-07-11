@@ -1,0 +1,12 @@
+<div *ngIf="annotation"  class="align-bottom">
+  <button [disabled]="userVoted" class="btn vote-button upvote" (click)="upVote()"></button>
+  <span class="text-muted votes-tag">{{annotation.upvotes}}</span>
+  <button [disabled]="userVoted" class="btn vote-button downvote" (click)="downVote()"></button>
+  <span class="text-muted votes-tag">{{annotation.downvotes}}</span>
+</div>
+<div *ngIf="screen"  class="align-bottom">
+  <button [disabled]="userVoted" class="btn vote-button upvote" (click)="upVote()"></button>
+  <span class="text-muted votes-tag">{{screen.upvotes}}</span>
+  <button [disabled]="userVoted" class="btn vote-button downvote" (click)="downVote()"></button>
+  <span class="text-muted votes-tag">{{screen.downvotes}}</span>
+</div>

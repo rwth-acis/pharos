@@ -1,4 +1,17 @@
-<div *ngIf="rbProject" id="reqDiv" class="container">
-  <reqbaz-project-widget project-id="370" auth-token="{{authToken}}"></reqbaz-project-widget>
+<div class="container">
+  <div *ngIf="project && rbProject && user" id="reqDiv" class="container" style="margin-top: 20px;">
+    <reqbaz-project-widget [projectId]="project.requirementsBazaarProjectId" [authToken]="authToken"
+                           [authorized]="true" [project]="rbProject" [currentUser]="user">
+    </reqbaz-project-widget>
+  </div>
+  <!--<div *ngIf="project && rbProject" id="reqDiv" class="container" style="margin-top: 20px;">
+  eyJhbGciOiJSUzI1NiJ9.eyJhdWQiOlsiNDA5OTgzNTYtODAzZi00Y2Q5LWI1MmQtNjdkZGY3Mzk5NDRkIl0sImlzcyI6Imh0dHBzOlwvXC9hcGkubGVhcm5pbmctbGF5ZXJzLmV1XC9vXC9vYXV0aDJcLyIsImV4cCI6MTUzMTMxNzY4MCwiaWF0IjoxNTMxMzE0MDgwLCJqdGkiOiJlMjgwYzUyYi0xNzU0LTQ1NWItOTRhNi02YmVlMGYxNWU4ZGYifQ.bcvO80k4p_Zg7GPipQ__QXBRiy_gphjYEl7RNCFSRuPbtNNjD9QGDPhmLA4slSRLAnyw5ZM8n5pV-HfxGRCykZzZG9vRNcMRup-Qtlgk7iVRZiAjOQPY9RwRerOifve9N4yXuxlHM_euTArMj9UEaFiazpWMbK5Ed34tOfO4JLk
+  eyJhbGciOiJSUzI1NiJ9.eyJhdWQiOlsiNDA5OTgzNTYtODAzZi00Y2Q5LWI1MmQtNjdkZGY3Mzk5NDRkIl0sImlzcyI6Imh0dHBzOlwvXC9hcGkubGVhcm5pbmctbGF5ZXJzLmV1XC9vXC9vYXV0aDJcLyIsImV4cCI6MTUzMTMyMDI1OCwiaWF0IjoxNTMxMzE2NjU4LCJqdGkiOiI3ZTY2ZTdmMy02ODA4LTQ0MzctOWM3MC05YjZiYTEzMmE5NDcifQ.rv2-xJFrQapEAu1wy-7LaJc1_RXGCHPABXnBqePWE0B5fQIaYCNLASqYCtnHgkiWoPW328ftx7tZXZ5EdCtBoXbBj_0p9JbcCbpPoHj0Bh55JzbvyihW7WCOWuGVxhawSmzZBLHUJrClTWbNYt3KpjyRjXujFEk1eJIpKHz25G4
+    <reqbaz-project-widget project-id="384" auth-token="eyJhbGciOiJSUzI1NiJ9.eyJhdWQiOlsiNDA5OTgzNTYtODAzZi00Y2Q5LWI1MmQtNjdkZGY3Mzk5NDRkIl0sImlzcyI6Imh0dHBzOlwvXC9hcGkubGVhcm5pbmctbGF5ZXJzLmV1XC9vXC9vYXV0aDJcLyIsImV4cCI6MTUzMTMxNzY4MCwiaWF0IjoxNTMxMzE0MDgwLCJqdGkiOiJlMjgwYzUyYi0xNzU0LTQ1NWItOTRhNi02YmVlMGYxNWU4ZGYifQ.bcvO80k4p_Zg7GPipQ__QXBRiy_gphjYEl7RNCFSRuPbtNNjD9QGDPhmLA4slSRLAnyw5ZM8n5pV-HfxGRCykZzZG9vRNcMRup-Qtlgk7iVRZiAjOQPY9RwRerOifve9N4yXuxlHM_euTArMj9UEaFiazpWMbK5Ed34tOfO4JLk"
+                           authorized="true" project="{{rbProject}}"></reqbaz-project-widget>
+  </div>-->
+  <div style="position: fixed; bottom: 50px; left: 90px;">
+    <a href="https://requirements-bazaar.org/"><button class="btn btn-outline-success">Visit Requirements Bazaar</button></a>
+  </div>
 </div>
 

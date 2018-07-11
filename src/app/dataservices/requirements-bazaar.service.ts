@@ -1,53 +1,39 @@
 import { Injectable } from '@angular/core';
-import {HttpClient} from '@angular/common/http';
+import {HttpClient, HttpHeaders} from '@angular/common/http';
+import {environment} from '../../environments/environment';
+import {Subject} from 'rxjs/Subject';
 
 @Injectable()
 export class RequirementsBazaarDataService {
 
   private rbPath = 'https://requirements-bazaar.org/bazaar';
+  httpOptions;
   private projectPath = '/projects';
-  private categoriesPath = '/categories';
-  private requirementsPath = '/requirements';
-  private commentsPath = '/comments';
-  private votesPath = '/votes';
+  token;
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {
+    this.token = localStorage.getItem('oidc_ll');
+    this.httpOptions = {
+      headers: new HttpHeaders({
+        'Access-Control-Allow-Origin': '*',
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'authorization':  'Bearer ' + this.token
+      })
+    };
+  }
 
-  createProject() {}
+  createProject(projectName) {
+    const params = {};
+    return this.http.post(this.rbPath + this.projectPath, params, this.httpOptions);
+  }
 
   getPoject(projectId) {
     return this.http.get(this.rbPath + this.projectPath + '/' + projectId);
   }
 
-  getCategories(projectId) {
-    return this.http.get(this.rbPath + this.projectPath + '/' + projectId + this.categoriesPath);
+  handleError(error) {
+    console.log('Requirements Bazaar Data Error. ', error);
+    return error;
   }
-
-  addCategory(projectId) {}
-
-  updateCategory(categoryId) {}
-
-  deleteCategory(categoryId) {}
-
-  getRequirements(categoryId) {
-    return this.http.get(this.rbPath + this.categoriesPath + '/' + categoryId + this.requirementsPath);
-  }
-
-  addRequirement(projectId) {}
-
-  updateRequirement(requirementId) {}
-
-  deleteRequirement(requirementId) {}
-
-  getComments(requirementId) {
-    return this.http.get(this.rbPath + this.requirementsPath + '/' + requirementId + this.commentsPath);
-  }
-
-  addComment(requirementId) {}
-
-  getVotes(requirementId) {
-    return this.http.get(this.rbPath + this.requirementsPath + '/' + requirementId + this.votesPath);
-  }
-
-  addVote(requirementId) {}
 }

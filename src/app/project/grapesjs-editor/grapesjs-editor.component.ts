@@ -7,6 +7,7 @@ import {ScreenModel} from '../../datamodels/screen.model';
 import {Project} from '../../datamodels/project.model';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {UpdateScreenComponent} from './update-screen/update-screen.component';
+import {VersionModel} from '../../datamodels/version.model';
 
 declare let grapesjs: any;
 
@@ -18,6 +19,7 @@ declare let grapesjs: any;
 export class GrapesjsEditorComponent implements OnInit, OnDestroy {
   @Input() htmlData: string;
   @Input() cssData: string;
+
   editor: any;
   projectId: string;
   project: Project;

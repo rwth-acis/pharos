@@ -12,13 +12,10 @@
   margin: 16px;
   padding: 10px;
 }
-.btn-circle {
+.btn-bottom {
   position: fixed;
-  bottom: 30px;
-  right: 30px;
-  width: 60px;
-  height: 60px;
-  border-radius: 50% !important;
+  bottom: 50px;
+  right: 70px;
 }
 .add {
   background-image: url('assets/images/add.svg');
@@ -26,7 +23,18 @@
   background-position: center center;
 }
 .delete {
-  background-image: url('assets/images/delete_purple.svg');
+   background-image: url('assets/images/delete_purple.svg');
+   background-repeat: no-repeat;
+   background-position: center center;
+   background-color: transparent;
+ }
+.back {
+  background-image: url('assets/images/back.svg');
+  background-repeat: no-repeat;
+  background-color: transparent;
+}
+.copy {
+  background-image: url('assets/images/copy.svg');
   background-repeat: no-repeat;
   background-position: center center;
   background-color: transparent;

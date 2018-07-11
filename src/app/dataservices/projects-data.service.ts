@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import {Project} from '../datamodels/project.model';
 import {AngularFireDatabase, FirebaseListObservable, FirebaseObjectObservable} from 'angularfire2/database-deprecated';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
+import {AppGlobals} from '../appGlobals';
 
 @Injectable()
 export class ProjectsDataService {

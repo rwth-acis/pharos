@@ -10,6 +10,7 @@ import {AppGlobals} from '../appGlobals';
 import {Router} from '@angular/router';
 import {GithubDataService} from '../dataservices/github-data.service';
 import {ProjectService} from '../services/project.service';
+import {UserDataService} from '../dataservices/user-data.service';
 
 
 /*import '../../../bower_components/direwolf-elements/direwolf-space.html';
@@ -28,11 +29,13 @@ export class ProjectsComponent implements OnInit, OnDestroy {
 
   projects: Project[];
   checked: boolean;
-  githubSignedIn = false;
+  githubSignedIn;
+  isMaintainer = false;
 
   // Subscriptions
   projectsListSub: Subscription;
   githubAuthSub: Subscription;
+  maintainerSub: Subscription;
 
   constructor(private appGlobals: AppGlobals,
               private projectsDataService: ProjectsDataService,
@@ -41,8 +44,10 @@ export class ProjectsComponent implements OnInit, OnDestroy {
               private vcr: ViewContainerRef,
               private router: Router,
               private githubDataService: GithubDataService,
-              private projectService: ProjectService) {
+              private projectService: ProjectService,
+              private userDataService: UserDataService) {
     this.appGlobals.setAppGlobals({title: 'Projects', showOptions: false, projectKey: null});
+    this.isMaintainer = this.appGlobals.isMaintainer;
     this.toastr.setRootViewContainerRef(vcr);
     this.projectsListSub = this.projectsDataService.getProjectList().subscribe(
       projects => {
@@ -50,8 +55,16 @@ export class ProjectsComponent implements OnInit, OnDestroy {
       }
     );
     this.githubSignedIn = this.githubDataService.signedIn;
+    this.checkLoginStatus();
     this.githubAuthSub = this.githubDataService.$githubAuth.subscribe(
-      (result) => { this.githubSignedIn = result; }
+      (result) => {
+        this.githubSignedIn = result;
+        this.checkLoginStatus();
+        this.isMaintainer = this.appGlobals.isMaintainer;
+      }
+    );
+    this.maintainerSub = this.userDataService.$isMaintainer.subscribe(
+      (result) => { this.isMaintainer = result; }
     );
   }
 
@@ -60,6 +73,7 @@ export class ProjectsComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.projectsListSub.unsubscribe();
     this.githubAuthSub.unsubscribe();
+    this.maintainerSub.unsubscribe();
   }
 
   addProject () {
@@ -67,7 +81,7 @@ export class ProjectsComponent implements OnInit, OnDestroy {
       (data) => {
         if (data.result === 'success') {
           this.toastr.success('Project created.', 'Success!');
-          this.router.navigate(['/projects', data.project.key]);
+          // this.router.navigate(['/projects', data.project.key]);
         } else if (data.result === 'error') {
           this.toastr.error('We could not create your project', 'There was an error');
         }
@@ -98,4 +112,9 @@ export class ProjectsComponent implements OnInit, OnDestroy {
     );
   }
 
+  checkLoginStatus() {
+    if (!this.githubSignedIn) {
+      this.router.navigate(['login']);
+    }
+  }
 }

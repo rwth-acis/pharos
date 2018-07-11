@@ -2,7 +2,7 @@
   <div *ngFor="let project of projects" class="card m-3 card-project">
     <a routerLink="/projects/{{project.$key}}" style="text-decoration:none;"><h3 class="card-header">{{project.name}}</h3></a>
     <div class="card-body">
-      <h5 class="card-title">{{project.subtitle}}</h5>
+      <h5 class="card-title" style="cursor: pointer;">{{project.subtitle}}</h5>
       <h6 class="card-subtitle text-muted">{{project.creationDate}}</h6>
     </div>
     <a routerLink="/projects/{{project.$key}}">
@@ -12,13 +12,13 @@
       <p class="card-text">{{project.description}}</p>
     </div>
     <div class="card-body">
-      <a routerLink="/projects/{{project.$key}}" class="card-link">Go to Project</a>
-      <a href="{{project.gitHubUrl}}" class="card-link">GitHub</a>
-      <button *ngIf="githubSignedIn" class="btn delete" (click)="deleteProject(project)" style="width: 18px; height: 22px; float: right; background-size: 18px 20px;"></button>
+      <a routerLink="/projects/{{project.$key}}" class="card-link"  style="cursor: pointer;">Go to Project</a>
+      <a [href]="project.gitHubUrl" class="card-link">GitHub</a>
+      <button *ngIf="githubSignedIn && isMaintainer" class="btn delete" (click)="deleteProject(project)" style="width: 18px; height: 22px; float: right; background-size: 18px 20px;"></button>
     </div>
     <div class="card-footer text-muted">
       Created by: {{project.createdBy}}
     </div>
   </div>
 </div>
-<button *ngIf="githubSignedIn" type="button" class="btn btn-primary btn-circle add" (click)="addProject()"></button>
+<button *ngIf="githubSignedIn && isMaintainer" type="button" class="btn btn-primary btn-bottom" (click)="addProject()">Create Project</button>

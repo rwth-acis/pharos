@@ -17,10 +17,9 @@ export class Project {
   feedback: any;
   instructions: any;
   subtitle: string;
-  requirementsBazzarProjectId: any;
+  requirementsBazaarProjectId: any;
   threadedCommentId: any;
   gitHubRepoName: any;
-  commentThreadsIds = [];
   gitHubUrl: string;
 
   constructor(json) {
@@ -40,10 +39,9 @@ export class Project {
     this.feedback = (json.feedback) ? json.feedback : null;
     this.instructions = (json.instructions) ? json.instructions : null;
     this.subtitle = (json.subtitle) ? json.subtitle : null;
-    this.requirementsBazzarProjectId = (json.requirementsBazzarProjectId) ? json.requirementsBazzarProjectId : null;
+    this.requirementsBazaarProjectId = (json.requirementsBazaarProjectId) ? json.requirementsBazaarProjectId : null;
     this.threadedCommentId = (json.threadedCommentId) ? json.threadedCommentId : null;
     this.gitHubRepoName = (json.gitHubRepoName) ? json.gitHubRepoName : null;
-    this.commentThreadsIds = (json.commentThreadsIds) ? json.commentThreadsIds : [];
     this.gitHubUrl = (json.gitHubUrl) ? json.gitHubUrl : null;
   }
 

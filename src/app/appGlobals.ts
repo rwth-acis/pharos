@@ -1,10 +1,16 @@
 import {Injectable} from '@angular/core';
 import {Subject} from 'rxjs/Subject';
+import {Subscription} from 'rxjs/Subscription';
+import {UserDataService} from './dataservices/user-data.service';
+import {UserModel} from './datamodels/user.model';
 
 @Injectable()
-export class AppGlobals {
+export class AppGlobals{
 
   public projectKey = null;
+  public isMaintainer;
+  public user: UserModel;
+  public token: string;
 
   private appGlobals: Subject<any> = new Subject<any>();
   public $appGlobals = this.appGlobals.asObservable();

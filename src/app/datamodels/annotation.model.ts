@@ -9,6 +9,9 @@ export class AnnotationModel {
   createdBy: string;
   date: string;
   formattedDate: string;
+  upvotes: number;
+  downvotes: number;
+  voters = [];
 
   constructor(json) {
     this.key = (json.key) ? json.key : null;
@@ -19,6 +22,9 @@ export class AnnotationModel {
     this.createdBy = json.createdBy;
     this.date = json.date;
     this.formattedDate = new Date(this.date).toLocaleString('en-EN');
+    this.upvotes = (json.upvotes) ? json.upvotes : 0;
+    this.downvotes = (json.downvotes) ? json.downvotes : 0;
+    this.voters = (json.voters) ? json.voters : [];
   }
 
 }

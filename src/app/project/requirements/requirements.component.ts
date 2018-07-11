@@ -1,7 +1,13 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {RequirementsBazaarDataService} from '../../dataservices/requirements-bazaar.service';
 
 import '../../../../bower_components/reqbaz-project-widget/reqbaz-project-widget.html';
+import {ActivatedRoute, Router} from '@angular/router';
+import {Subscription} from 'rxjs/Subscription';
+import {GithubDataService} from '../../dataservices/github-data.service';
+import {ProjectsDataService} from '../../dataservices/projects-data.service';
+import {AppGlobals} from '../../appGlobals';
+import {UserDataService} from '../../dataservices/user-data.service';
 
 
 
@@ -10,40 +16,68 @@ import '../../../../bower_components/reqbaz-project-widget/reqbaz-project-widget
   templateUrl: './requirements.component.html',
   styleUrls: ['./requirements.component.css']
 })
-export class RequirementsComponent implements OnInit {
+export class RequirementsComponent implements OnInit, OnDestroy{
 
   rbProject;
-  selectedCategory = null;
-  catRequirements = null;
   authToken = null;
+  githubSignedIn: boolean;
+  rbSignedIn: boolean;
+  projectId;
+  project;
+  user;
 
-  constructor(private rbDataService: RequirementsBazaarDataService) {
-    // TODO: get auth token
-  }
+  githubAuthSub: Subscription;
+  projectSub: Subscription;
+  maintainerSub: Subscription;
 
-  ngOnInit() {
-    this.rbDataService.getPoject(370).subscribe(
-      (result) => {
-        this.rbProject = result;
-        console.log(this.rbProject);
-        this.rbDataService.getCategories(370).subscribe(
-          (result2) => {
-            this.rbProject.categories = result2;
-            console.log(this.rbProject.categories);
-          }
-        );
+  constructor(private appGlobals: AppGlobals,
+              private rbDataService: RequirementsBazaarDataService,
+              private router: Router,
+              private githubDataService: GithubDataService,
+              private route: ActivatedRoute,
+              private projectsDataService: ProjectsDataService,
+              private userDataService: UserDataService) {
+    this.rbSignedIn = this.userDataService.signedIn;
+    this.projectId = this.route.snapshot.params.key;
+    this.projectSub = this.projectsDataService.getProject(this.projectId).subscribe(
+      project => {
+        this.project = project;
+        this.appGlobals.setAppGlobals({title: this.project.name, showOptions: true, projectKey: this.projectId});
+        this.rbDataService.getPoject(project.requirementsBazaarProjectId).subscribe(
+          (result) => {
+            this.rbProject = result;
+          });
       }
-      );
-
-  }
-
-  selectCategory(cat) {
-    this.selectedCategory = cat;
-    this.rbDataService.getRequirements(this.selectedCategory.id).subscribe(
+    );
+    this.githubSignedIn = this.githubDataService.signedIn;
+    this.checkLoginStatus();
+    this.githubAuthSub = this.githubDataService.$githubAuth.subscribe(
       (result) => {
-        this.catRequirements = result;
+        this.githubSignedIn = result;
+        this.checkLoginStatus();
+      }
+    );
+    this.authToken = this.rbDataService.token;
+    this.user = this.userDataService.userOidc;
+    this.maintainerSub = this.userDataService.$isMaintainer.subscribe(
+      (result) => {
+        this.user = this.userDataService.userOidc;
       }
     );
   }
 
+  ngOnInit() {
+  }
+
+  ngOnDestroy() {
+    this.githubAuthSub.unsubscribe();
+    this.projectSub.unsubscribe();
+    this.maintainerSub.unsubscribe();
+  }
+
+  checkLoginStatus() {
+    if (!this.githubSignedIn) {
+      this.router.navigate(['login']);
+    }
+  }
 }

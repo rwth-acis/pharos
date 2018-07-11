@@ -1,0 +1,169 @@
+<div *ngIf="view === 'selectType'">
+  <div class="card m-3" style="width: 40%; min-width: 250px;  display: inline-block; vertical-align:top;">
+    <h3 class="card-header">Preference Test</h3>
+    <div class="card-body">
+      <p class="card-text">Preference tests can help you choose between two screen versions by asking users which one they prefer. </p>
+      <button [disabled]="!githubSignedIn" class="btn btn-secondary" (click)="goToPreferenceTest()">Create Preference Test</button>
+    </div>
+  </div>
+  <div class="card m-3" style="width: 40%; min-width: 250px;  display: inline-block; vertical-align:top;">
+    <h3 class="card-header">Question Test</h3>
+    <div class="card-body">
+      <p class="card-text">Get feedback from users with straightforward design surveys on this screen.</p>
+      <button [disabled]="!githubSignedIn" class="btn btn-secondary" (click)="view = 'setupQuestionTest'">Create Question Test</button>
+    </div>
+  </div>
+  <p *ngIf="!githubSignedIn" class="text-danger">Please sign in with GitHub to create tests.</p>
+  <div *ngIf="preferenceTestList.length > 0">
+    <h3>Preference Tests</h3>
+    <table class="table table-hover">
+      <thead>
+      <tr>
+        <th scope="col">Date</th>
+        <th scope="col"></th>
+        <th scope="col">Results</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let t of preferenceTestList" class="table-light">
+        <td (click)="showResultsPT(t)">{{t.formattedDate}}</td>
+        <td><button class="btn  btn-secondary" (click)="openLinkDialog(t.link)">Show Link</button></td>
+        <td (click)="showResultsPT(t)">{{t.votesV1 + t.votesV2}}</td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+  <div *ngIf="questionTestList.length > 0">
+    <h3>Question Tests</h3>
+    <table class="table table-hover">
+      <thead>
+      <tr>
+        <th scope="col">Date</th>
+        <th scope="col"></th>
+        <th scope="col">Results</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let t of questionTestList" class="table-light">
+        <td (click)="showResultsQT(t)">{{t.formattedDate}}</td>
+        <td><button class="btn  btn-secondary" (click)="openLinkDialog(t.link)">Show Link</button></td>
+        <td (click)="showResultsQT(t)">{{t.participantsCount}}</td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div *ngIf="view === 'setupPreferenceTest'">
+  <h3>Setup Preference Test</h3>
+  <p>1. Choose between two version of the screen so users can compare them.</p>
+  <div  style="margin: 20px; max-height: 40%; overflow: auto">
+    <table class="table table-hover">
+      <thead>
+      <tr>
+        <th scope="col">Date</th>
+        <th scope="col">Message</th>
+        <th scope="col">Author</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let version of versions" [ngClass]="version.cssClass" (click)="selectVersionPT(version)">
+        <td>{{version.formattedDate}}</td>
+        <td>{{version.message}}</td>
+        <td>{{version.createdBy}}</td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+  <p>2. Add a few words to introduce your design to the voters:</p>
+  <input type="textarea" class="form-control" placeholder="Add Introduction" [(ngModel)]="introduction" style="min-width: 360px;">
+  <p>3. Share the test with your users!</p>
+  <button type="button" class="btn btn-success" (click)="generatePreferenceTest()">Generate Test</button>
+</div>
+
+<div *ngIf="view === 'setupQuestionTest'">
+  <h3>Setup Question Test</h3>
+  <p>1. Choose a version of the screen so users can answer you questions.</p>
+  <div  style="margin: 20px; max-height: 40%; overflow: auto">
+    <table class="table table-hover">
+      <thead>
+      <tr>
+        <th scope="col">Date</th>
+        <th scope="col">Message</th>
+        <th scope="col">Author</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let version of versions" [ngClass]="version.cssClass" (click)="selectVersionQT(version)">
+        <td>{{version.formattedDate}}</td>
+        <td>{{version.message}}</td>
+        <td>{{version.createdBy}}</td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+  <p>2. Add a few words to introduce your design to the voters:</p>
+  <input type="textarea" class="form-control" placeholder="Add Introduction" [(ngModel)]="introduction" style="min-width: 360px;">
+  <p>3. Add your questions for the users:</p>
+  <div *ngIf="questions.length > 0" style="margin: 20px;">
+    <table class="table table-hover">
+      <thead>
+      <tr>
+        <th scope="col">Questions</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let q of questions">
+        <td>{{q}}</td>
+        <td><button class="btn delete" (click)="deleteQuestion(q)" style="width: 18px; height: 22px; float: right; background-size: 18px 20px;"></button></td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+  <input type="text" placeholder="Add Question" [(ngModel)]="question" style="min-width: 400px;">
+  <button type="button" class="btn btn-secondary"(click)="addQuestion()">Add</button>
+  <p>4. Share the test with your users!</p>
+  <button type="button" class="btn btn-success" (click)="generateQuestionTest()" >Generate Test</button>
+</div>
+
+<div *ngIf="((view === 'setupPreferenceTest' || view === 'setupQuestionTest') && errorMessages.length > 0)">
+  <p *ngFor="let error of errorMessages" class="text-danger">{{error}}</p>
+</div>
+
+<div *ngIf="view === 'resultsPT'">
+  <h3>Results</h3>
+  <h5>Total votes: {{testPT.votesV1 + testPT.votesV2}}</h5>
+  <div style="display: block;">
+    <div style="display: inline-block; width: 48%; vertical-align: middle;">
+      <p>{{testPT.votesV1}} votes</p>
+      <img #imageOne style="width: 100%">
+    </div>
+    <div style="display: inline-block; width: 48%; vertical-align: middle;">
+      <p>{{testPT.votesV2}} votes</p>
+      <img #imageTwo style="width: 100%">
+    </div>
+  </div>
+</div>
+
+<div *ngIf="view === 'resultsQT'">
+  <h3>Results</h3>
+  Total participants: <span *ngIf="testQT.participantsCount">{{testQT.participantsCount}}</span><span *ngIf="!testQT.participantsCount">0</span>
+  <div>
+    <div style="display:  inline-block; width: 48%; vertical-align: middle;">
+      <img #imageSingle style="width: 100%;">
+    </div>
+    <div style="display:  inline-block; width: 48%; padding: 16px; height: 96%; vertical-align: middle;">
+      <div *ngFor="let q of testQT.questions; let i = index" class="form-group border-secondary" style="border: 1px solid; padding: 20px;  overflow-y: auto;">
+        <label><h5>{{i+1}}. {{q}}</h5></label>
+        <div *ngIf="testQT.answers" style="max-height: 200px;" class="border-secondary">
+          <p *ngFor="let a of testQT.answers[i];" style="border-bottom: 1px #ddd solid;">
+            {{a}}
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<iframe id="previewIframe" style="visibility: hidden; width: 100%" [srcdoc]="htmlData"  (load)="getImageData()"></iframe>
+<iframe id="previewIframe2" style="visibility: hidden; width: 100%" [srcdoc]="htmlData2"  (load)="getSecondImageData()"></iframe>

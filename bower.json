@@ -21,7 +21,8 @@
     "paper-input": "PolymerElements/paper-input#^2.2.2",
     "paper-checkbox": "PolymerElements/paper-checkbox#^2.0.4",
     "paper-material": "^2.1.0",
-    "reqbaz-project-widget": "/root/RequirementsBazaar-Components",
-    "las2peer-comment-widget": "/root/las2peer-comment-thread-widget"
+    "reqbaz-project-widget": "C:/Users/delcy/WebstormProjects/reqbaz-project-widget",
+    "las2peer-comment-widget": "C:/Users/delcy/WebstormProjects/las2peer-comment-widget",
+    "iron-flex-layout": "^2.0.3"
   }
 }

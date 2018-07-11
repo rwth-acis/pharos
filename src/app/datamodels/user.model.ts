@@ -1,12 +1,11 @@
-export class User {
+export class UserModel {
 
   id: number;
   username: string;
   email: string;
   firstName: string;
   lastName: string;
-  status: string;
-  projects: any;
+  type: string;
 
   constructor(json) {
     this.id = json.id;
@@ -14,8 +13,7 @@ export class User {
     this.email = json.email;
     this.firstName = json.firstName;
     this.lastName = json.lastName;
-    this.status = json.status;
-    this.projects = json.projects;
+    this.type = json.type;
   }
 
 }

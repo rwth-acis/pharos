@@ -21,6 +21,7 @@ import {NewScreenComponent} from './new-screen/new-screen.component';
 import {ScreenDataService} from '../dataservices/screen-data.service';
 import {GithubDataService} from '../dataservices/github-data.service';
 import {ProjectService} from '../services/project.service';
+import {UserDataService} from '../dataservices/user-data.service';
 
 @Component({
   selector: 'app-project',
@@ -34,26 +35,13 @@ export class ProjectComponent implements OnInit, OnDestroy, AfterViewInit {
   projectId: any;
   project: Project;
   screens  = [];
-  samplePage = '<!DOCTYPE html>\n' +
-    '<html lang="en">\n' +
-    '<body>\n' +
-    '<h1>Sample Title</h1>\n' +
-    '<div class="card border-primary mb-3" style="width: 70%; height: 70%">\n' +
-    '  <h3>Sample Div</h3>\n' +
-    '  <p class="lead">Sample paragraph</p>\n' +
-    '  <button class="btn btn-primary btn-lg">Sample Button</button>\n' +
-    '</div>\n' +
-    '\n' +
-    '</body>\n' +
-    '</html>';
-  sampleCss = 'body{background-color: #fefefe}';
-  htmlData = '';
   githubSignedIn: boolean;
+  isMaintainer;
 
   // Subscriptions
   projectSub: Subscription;
-  screeensSub: Subscription;
   githubAuthSub: Subscription;
+  maintainerSub: Subscription;
 
   constructor(private appGlobals: AppGlobals,
               private route: ActivatedRoute,
@@ -66,7 +54,8 @@ export class ProjectComponent implements OnInit, OnDestroy, AfterViewInit {
               private vcr: ViewContainerRef,
               private router: Router,
               private githubDataService: GithubDataService,
-              private projectService: ProjectService) {
+              private projectService: ProjectService,
+              private userDataService: UserDataService) {
     this.toastr.setRootViewContainerRef(vcr);
     this.projectId = this.route.snapshot.params.key;
     this.projectSub = this.projectsDataService.getProject(this.projectId).subscribe(
@@ -75,38 +64,43 @@ export class ProjectComponent implements OnInit, OnDestroy, AfterViewInit {
         this.appGlobals.setAppGlobals({title: this.project.name, showOptions: true, projectKey: this.projectId});
       }
     );
-    this.screeensSub = this.screenDataService.getScreenList().subscribe(
-      screens => {
-        this.screens = screens;
+    this.githubSignedIn = this.githubDataService.signedIn;
+    this.checkLoginStatus();
+    this.githubAuthSub = this.githubDataService.$githubAuth.subscribe(
+      (result) => {
+        this.githubSignedIn = result;
+        this.checkLoginStatus();
       }
     );
-    this.githubSignedIn = this.githubDataService.signedIn;
-    this.githubAuthSub = this.githubDataService.$githubAuth.subscribe(
-      (result) => { this.githubSignedIn = result; }
+    this.isMaintainer = this.appGlobals.isMaintainer;
+    this.maintainerSub = this.userDataService.$isMaintainer.subscribe(
+      (result) => { this.isMaintainer = result; }
     );
   }
 
   ngOnInit() {
+    this.screens = this.screenDataService.getScreenListByProjectId(this.projectId);
   }
 
   ngAfterViewInit() {
-    //this.getBodyElements(this.samplePage);
   }
 
   ngOnDestroy() {
     this.projectSub.unsubscribe();
-    this.screeensSub.unsubscribe();
     this.githubAuthSub.unsubscribe();
+    this.maintainerSub.unsubscribe();
   }
 
   addScreen() {
     const modal = this.modal.open(NewScreenComponent);
     modal.componentInstance.githubRepoName = this.project.gitHubRepoName;
     modal.componentInstance.githubRepoOwner = this.project.createdBy;
+    modal.componentInstance.projectId = this.projectId;
     modal.result.then(
       (data) => {
         if (data.result === 'success') {
           this.toastr.success('Screen created.', 'Success!');
+          this.screens = this.screenDataService.getScreenListByProjectId(this.projectId);
           // this.router.navigate(['/projects', this.projectId , '/screens', data.screen.key]);
         } else if (data.result === 'error') {
           this.toastr.error('We could not create your screen', 'There was an error');
@@ -125,6 +119,7 @@ export class ProjectComponent implements OnInit, OnDestroy, AfterViewInit {
             this.projectService.deleteScreenImage(this.project.gitHubRepoName, this.project.createdBy, screen).then(
               (result) => {
                 this.toastr.success('Screen deleted.', 'Success!');
+                this.screens = this.screenDataService.getScreenListByProjectId(this.projectId);
               },
               (error) => {
                 this.toastr.error('We could not delete your screen. Please try again.', 'There was an error');
@@ -135,6 +130,7 @@ export class ProjectComponent implements OnInit, OnDestroy, AfterViewInit {
             this.projectService.deleteScreenGrapesJS(this.project.gitHubRepoName, screen).then(
               (result) => {
                 this.toastr.success('Screen deleted.', 'Success!');
+                this.screens = this.screenDataService.getScreenListByProjectId(this.projectId);
               },
               (error) => {
                 this.toastr.error('We could not delete your screen. Please try again.', 'There was an error');
@@ -151,47 +147,12 @@ export class ProjectComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   goToScreen(id) {
-    this.screenDataService.setScreenData(this.samplePage, this.sampleCss);
     this.router.navigate(['projects', this.projectId , 'screens', id]);
   }
 
-  getBodyElements() {
-    /*var tempDiv = document.createElement('div');
-    tempDiv.innerHTML = this.samplePage;
-    let bodyElements  = tempDiv.querySelectorAll('*');
-    //console.log(tempDiv.innerHTML);
-    this.htmlData = tempDiv.innerHTML;*/
-    //this.htmlData = this.sanitizer.bypassSecurityTrustStyle(tempDiv.outerHTML).toString();
-    this.htmlData = this.samplePage;
-    console.log(this.htmlData);
-    this.test();
-  }
-
-  onScreenChange() {
-    console.log('change', this.htmlData);
-  }
-
-  test() {
-    let nodes = this.screen.nativeElement.querySelectorAll('*');
-    console.log("nodes", nodes);
-    for (let i = 0; i <  nodes.length; i++) {
-      let node = nodes.item(i);
-      /*node.setAttribute('data-container', 'body');
-      node.setAttribute('data-toggle', 'popover');
-      node.setAttribute('data-placement', 'right');
-      node.setAttribute('data-content', 'Tag name');
-      node.setAttribute('data-original-title', 'Title');
-      node.setAttribute('width', '500px');*/
-      this.renderer.setProperty(node, 'data-container', 'body');
-      this.renderer.setProperty(node, 'data-toggle', 'popover');
-      this.renderer.setProperty(node, 'data-placement', 'right');
-      this.renderer.setProperty(node, 'data-content', 'Tag name');
-      this.renderer.setProperty(node, 'data-original-title', 'Title');
-      this.renderer.setProperty(node, 'width', '500px');
-      node.addEventListener('click', function (e) {
-        console.log('event', e);
-      }.bind(this));
-      console.log(node);
+  checkLoginStatus() {
+    if (!this.githubSignedIn) {
+      this.router.navigate(['login']);
     }
   }
 }

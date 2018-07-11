@@ -6,7 +6,7 @@
   </button>
 
   <div *ngIf="options.showOptions" class="collapse navbar-collapse" id="navbarColor01" [ngbCollapse]="isCollapsed">
-    <ul class="navbar-nav mr-auto">
+    <ul [hidden]="isTestView" class="navbar-nav mr-auto">
       <li class="nav-item active">
         <a class="nav-link"  routerLink="/projects">Home <span class="sr-only">(current)</span></a>
       </li>
@@ -14,22 +14,8 @@
         <a class="nav-link" routerLink="/projects/{{options.projectKey}}/requirements">Requirements Features</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" routerLink="/projects/{{options.projectKey}}/feedback">Feedback</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" routerLink="/projects/{{options.projectKey}}/test">Test</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" routerLink="/projects/{{options.projectKey}}/team">Team</a>
+        <a class="nav-link" routerLink="/projects/{{options.projectKey}}/feedback">Comments</a>
       </li>
     </ul>
-    <!--<form class="form-inline my-2 my-lg-0">
-      <input class="form-control mr-sm-2" type="text" placeholder="Search">
-      <button class="btn btn-secondary my-2 my-sm-0" type="submit">Search</button>
-    </form>-->
   </div>
-  <button class="btn btn-secondary my-2 my-sm-0" (click)="githubSingIn()">
-    <span *ngIf="githubSignedIn">GitHub: Logged In</span>
-    <span *ngIf="!githubSignedIn">GitHub Sign In</span>
-  </button>
 </nav>

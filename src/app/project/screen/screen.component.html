@@ -1,10 +1,5 @@
 <div *ngIf="screen" class="tab_content">
-
-  <div *ngIf="selectedTab === 'Prototype'">
-    <div *ngIf="screen.type === 'grapesjs' && githubSignedIn">
-      <app-grapesjs-editor [htmlData]="htmlString" [cssData]="cssString"></app-grapesjs-editor>
-    </div>
-  </div>
+  <h1>{{screen.name}}</h1>
 
   <div *ngIf="selectedTab === 'Preview'">
     <div *ngIf="screen.type === 'image'">
@@ -13,23 +8,19 @@
       </div>
       <div class="container">
         <img src="" #previewImage style="margin-top: 10px;" (load)="displayAnnotationCanvas()">
+        <app-vote [type]="'screen'" [screen]="screen" style="float: right"></app-vote>
       </div>
     </div>
-    <div *ngIf="screen.type === 'grapesjs' && htmlData" class="container">
-      <iframe id="previewIframe" [srcdoc]="htmlData" style="width: 100%; height: 100%; min-height: 600px; margin-top: 10px;"  (load)="displayAnnotationCanvas()"></iframe>
+    <div *ngIf="screen.type === 'grapesjs' && htmlData" class="container" style="margin-bottom: 90px;">
+      <iframe id="previewIframe" [srcdoc]="htmlData" style="width: 100%; height: 94%; min-height: 600px; margin-top: 10px;"  (load)="displayAnnotationCanvas()"></iframe>
+      <app-vote [type]="'screen'" [screen]="screen" style="float: right"></app-vote>
     </div>
   </div>
 
   <div [hidden]="selectedTab !== 'Annotations'" class="container" style="margin-top: 20px;">
     <button *ngIf="githubSignedIn" [hidden]="addAnnotation" (click)="addAnnotation = !addAnnotation;" class="btn btn-primary">New Annotation</button>
-    <div [hidden]="!addAnnotation">
-      <button (click)="saveAnnotation()" class="btn btn-success">Save Annotation</button>
-      <div id="annotationContainer" class="card border-secondary">
-    </div>
-    </div>
-    <div [hidden]="addAnnotation"  style="display: inline-block;">
-      <img #annotationImage style="width: 80%; display: inline-block; vertical-align:top;">
-      <table class="table table-hover" style="margin-top: 20px;  width: 15%; display: inline-block; position: absolute; right: 0px">
+    <div [hidden]="addAnnotation" style="margin-top: 20px ; width: 15%; float: right;" class="align-top"  >
+      <table  class="table table-hover" style="margin-top: 20px;  width: 15%;">
         <thead>
         <tr>
           <th scope="col">Date</th>
@@ -45,6 +36,33 @@
         </tr>
         </tbody>
       </table>
+    </div>
+    <div [hidden]="!addAnnotation">
+      <button (click)="saveAnnotation()" class="btn btn-success" style="margin: 2px;">Save Annotation</button>
+      <div id="annotationContainer" class="card border-secondary"></div>
+    </div>
+    <div [hidden]="addAnnotation" style="width: 80%;">
+      <img #annotationImage style="width: 100%;">
+      <app-vote *ngIf="currentAnnotation" [type]="'annotation'" [(annotation)]="currentAnnotation" style="float: right; margin-right: 20px;"></app-vote>
+    </div>
+  </div>
+
+  <div *ngIf="selectedTab === 'Comments'">
+    <las2peer-comment-widget
+      id="comments"
+      [baseUrl]="serviceNode"
+      login-name="alice"
+      login-password="pwalice"
+      [thread]="screen.threadedCommentId">
+    </las2peer-comment-widget>
+  </div>
+
+  <div *ngIf="selectedTab === 'Prototype'">
+    <div *ngIf="screen.type === 'grapesjs' && githubSignedIn">
+      <app-grapesjs-editor [htmlData]="htmlString" [cssData]="cssString"></app-grapesjs-editor>
+    </div>
+    <div *ngIf="screen.type === 'grapesjs' && !githubSignedIn">
+      <p>Please sign in with GitHub to start prototyping.</p>
     </div>
   </div>
 
@@ -67,7 +85,12 @@
     </table>
   </div>
 
+  <div *ngIf="selectedTab === 'Tests'" class="container">
+    <app-test-admin [screen]="screen" [versions]="versions"></app-test-admin>
+  </div>
+
 </div>
+
 <div class="footer nav-center bg-light">
   <ul class="nav nav-tabs">
     <li *ngFor="let tab of tabOptions" class="nav-item">

@@ -1,10 +1,16 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {AppGlobals} from '../../appGlobals';
-import {FeedbackDataService} from '../../dataservices/feedback-data.service';
+import {AnnotationsDataService} from '../../dataservices/annotations-data.service';
 import {Subscription} from 'rxjs/Subscription';
-import {Feedback} from '../../datamodels/feedback.model';
 
 import '../../../../bower_components/las2peer-comment-widget/las2peer-comment-widget.html';
+import {UserModel} from '../../datamodels/user.model';
+import {ActivatedRoute, Router} from '@angular/router';
+import {Project} from '../../datamodels/project.model';
+import {ProjectsDataService} from '../../dataservices/projects-data.service';
+import {UserDataService} from '../../dataservices/user-data.service';
+import {environment} from '../../../environments/environment';
+import {GithubDataService} from '../../dataservices/github-data.service';
 
 @Component({
   selector: 'app-feedback',
@@ -13,24 +19,58 @@ import '../../../../bower_components/las2peer-comment-widget/las2peer-comment-wi
 })
 export class FeedbackComponent implements OnInit, OnDestroy {
 
-  constructor() {
-    /*var comments = document.getElementById("comments");
-    const xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function() {
-      if (xhttp.readyState === 4 && xhttp.status === 201) {
-        console.log(xhttp.responseText);
-        localStorage.setItem("thread", xhttp.responseText);
-        comments.setAttribute("thread", localStorage.getItem("thread"));
+  user: UserModel;
+  projectId: any;
+  project: Project;
+  oidcSignedIn;
+  githubSignedIn: boolean;
+  serviceNode;
+
+  projectSub: Subscription;
+  oidcAuthSub: Subscription;
+  githubAuthSub: Subscription;
+
+  constructor(private appGlobals: AppGlobals,
+              private route: ActivatedRoute,
+              private projectsDataService: ProjectsDataService,
+              private userDataService: UserDataService,
+              private router: Router,
+              private githubDataService: GithubDataService) {
+    this.user = this.appGlobals.user;
+    this.oidcSignedIn = this.userDataService.signedIn;
+    this.projectId = this.route.snapshot.params.key;
+    this.projectSub = this.projectsDataService.getProject(this.projectId).subscribe(
+      project => {
+        this.project = project;
       }
-    };
-    xhttp.open("POST", "http://134.61.177.168:8080/commentmanagement/threads", true);
-    xhttp.setRequestHeader("Authorization", "Basic " + btoa("alice:pwalice"));
-    xhttp.send('{owner:"alice",writer:"bobby",reader:"joey"}');*/
+    );
+    this.oidcAuthSub = this.userDataService.$oidcAuth.subscribe(
+      (result) => {
+        this.oidcSignedIn = result;
+        this.user = this.appGlobals.user;
+      }
+    );
+    this.githubSignedIn = this.githubDataService.signedIn;
+    this.checkLoginStatus();
+    this.githubAuthSub = this.githubDataService.$githubAuth.subscribe(
+      (result) => {
+        this.githubSignedIn = result;
+        this.checkLoginStatus();
+      }
+    );
+    this.serviceNode = environment.comment_service.service_node;
   }
 
   ngOnInit() {
+    this.githubAuthSub.unsubscribe();
   }
 
   ngOnDestroy() {
+  }
+
+  checkLoginStatus() {
+    if (!this.githubSignedIn) {
+      this.router.navigate(['login']);
+    }
   }
 }

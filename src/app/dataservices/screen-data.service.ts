@@ -17,11 +17,25 @@ export class ScreenDataService {
   private screenData = new Subject();
   $screenData = this.screenData.asObservable();
 
-  constructor(private db: AngularFireDatabase) { }
+  constructor(private db: AngularFireDatabase) {
+    this.getScreenList();
+  }
 
   public getScreenList (query = {}): FirebaseListObservable<ScreenModel[]> {
     this.screens = this.db.list(this.path, query);
     return this.screens;
+  }
+
+  public getScreenListByProjectId(projectId) {
+    let screens = [];
+    this.screens.forEach(s => {
+      for (let i = 0; i < s.length; i++) {
+        if (s[i].projectId === projectId) {
+          screens.push(s[i]);
+        }
+      }
+    });
+    return screens;
   }
 
   public getScreen (key): FirebaseObjectObservable<ScreenModel> {
@@ -34,16 +48,20 @@ export class ScreenDataService {
     return this.screens.push(screen)
       .then(resolve => {
         console.log('ScreenModel created.', resolve);
-        return resolve;
+        return resolve.key;
       }, error => {
         console.log(error);
       });
   }
 
   public updateScreen(key, value: any) {
+    if (!this.screens) {
+      this.getScreenList();
+    }
     return this.screens.update(`${key}`, value)
       .then(resolve => {
         console.log('ScreenModel updated.');
+        return key;
       }, error => {
         console.log(error);
       });

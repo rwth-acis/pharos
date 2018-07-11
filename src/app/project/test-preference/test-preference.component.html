@@ -1,0 +1,38 @@
+<div *ngIf="test" class="container" class="container">
+
+  <div *ngIf="view==='start'"  class="align-middle" style="margin: 200px 0px 0px 200px;">
+    <h3>Hello!</h3>
+    <p>You have been invited to participate in a short test.</p>
+    <button class="btn btn-primary" (click)="view='introduction'">Start</button>
+  </div>
+
+  <div *ngIf="view==='introduction'" class="align-middle" style="margin: 200px 0px 0px 200px;">
+    <h5>{{test.introduction}}</h5>
+    <button class="btn btn-primary" (click)="view='comparison'">Next</button>
+  </div>
+
+  <div *ngIf="view==='comparison'" style="margin-top: 100px;">
+    <h3>Which design do you prefer?</h3>
+    <p>Click on image to expand it.</p>
+    <div style="margin: 10px;">
+      <div style="display:  inline-block; width: 48%; vertical-align: middle; text-align: center">
+        <img [src]="imageSrc1" style="width: 100%; margin: 10px;" (click)="viewImage('1')">
+        <button style="margin: 20px;" class="btn btn-outline-secondary" (click)="selectOption('1')">Choose first option</button>
+      </div>
+      <div style="display:  inline-block; width: 48%; vertical-align: middle; text-align: center">
+        <img [src]="imageSrc2" style="width: 100%; margin: 10px;" (click)="viewImage('2')">
+        <button style="margin: 20px;" class="btn btn-outline-secondary" (click)="selectOption('2')">Choose second option</button>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="view==='singleImage'" style="margin-top: 100px;">
+    <button class="btn back" style="width: 80px; height: 22px; margin: 10px; background-size: 18px 20px;" (click)="view='comparison'">Back</button>
+    <img [src]="imageSingleSrc" style="width: 100%;">
+  </div>
+
+  <div *ngIf="view==='end'" class="align-middle" style="margin: 200px 0px 0px 200px;">
+    <h3>Thank you!</h3>
+    We appreciate your feedback
+  </div>
+</div>

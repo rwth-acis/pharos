@@ -1,10 +1,9 @@
 <div class="container">
   <las2peer-comment-widget
-    id="comments"
-    base-url="http://134.61.177.168:8080"
-    login-name="alice"
-    login-password="pwalice"
-    thread="9141760f-f741-45bb-9516-31f49f1c1390">
+  id="comments"
+  [baseUrl]="serviceNode"
+  login-name="alice"
+  login-password="pwalice"
+  [thread]="project.threadedCommentId">
   </las2peer-comment-widget>
-
 </div>

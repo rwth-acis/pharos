@@ -1,15 +1,15 @@
 import { TestBed, inject } from '@angular/core/testing';
 
-import { FeedbackDataService } from './feedback-data.service';
+import { AnnotationsDataService } from './annotations-data.service';
 
-describe('FeedbackDataService', () => {
+describe('AnnotationsDataService', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [FeedbackDataService]
+      providers: [AnnotationsDataService]
     });
   });
 
-  it('should be created', inject([FeedbackDataService], (service: FeedbackDataService) => {
+  it('should be created', inject([AnnotationsDataService], (service: AnnotationsDataService) => {
     expect(service).toBeTruthy();
   }));
 });
