@@ -15,6 +15,6 @@ export const environment = {
     clientId: '40998356-803f-4cd9-b52d-67ddf739944d'
   },
   comment_service: {
-    service_node: 'https://las2peer.dbis.rwth-aachen.de:9098'
+    service_node: 'http://46.101.191.120:8080'
   }
 };
