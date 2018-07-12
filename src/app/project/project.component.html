@@ -15,7 +15,7 @@
       <div class="card-body">
         <a (click)="goToScreen(screen.$key)" class="card-link"  style="cursor: pointer;">Go to Screen</a>
         <a [href]="screen.gitHubUrl" class="card-link">GitHub</a>
-        <button *ngIf="githubSignedIn" class="btn delete" (click)="deleteScreen(screen)" style="width: 18px; height: 22px; float: right; background-size: 18px 20px;"></button>
+        <button *ngIf="isMaintainer && githubSignedIn" class="btn delete" (click)="deleteScreen(screen)" style="width: 18px; height: 22px; float: right; background-size: 18px 20px;"></button>
       </div>
       <div class="card-footer text-muted">
         Created by: {{screen.createdBy}}
