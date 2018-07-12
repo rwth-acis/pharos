@@ -253,7 +253,7 @@ export class ScreenComponent implements OnInit, AfterViewInit, OnDestroy {
               this.cssString = atob(fileCss['content']);
               this.htmlData = this.sanitizer.bypassSecurityTrustHtml('<head><style>' + this.cssString + '</style></head><body>' + this.htmlString + '</body>');
               this.screen.gitHubShaHtml = file['sha'];
-              this.screen.gitHubShaCss = file['sha'];
+              this.screen.gitHubShaCss = fileCss['sha'];
             }
           );
         }
