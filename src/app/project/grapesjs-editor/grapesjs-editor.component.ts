@@ -7,7 +7,6 @@ import {ScreenModel} from '../../datamodels/screen.model';
 import {Project} from '../../datamodels/project.model';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {UpdateScreenComponent} from './update-screen/update-screen.component';
-import {VersionModel} from '../../datamodels/version.model';
 
 declare let grapesjs: any;
 
@@ -19,12 +18,12 @@ declare let grapesjs: any;
 export class GrapesjsEditorComponent implements OnInit, OnDestroy {
   @Input() htmlData: string;
   @Input() cssData: string;
+  @Input() screen: ScreenModel;
 
   editor: any;
   projectId: string;
   project: Project;
   screenId: string;
-  screen: ScreenModel;
 
   constructor( private toastr: ToastsManager,
                private vcr: ViewContainerRef,
@@ -35,10 +34,6 @@ export class GrapesjsEditorComponent implements OnInit, OnDestroy {
                private modal: NgbModal) {
     this.toastr.setRootViewContainerRef(vcr);
     this.projectId = this.route.snapshot.params.key;
-    this.screenId = this.route.snapshot.params.screen_key;
-    this.screenDataService.getScreen(this.screenId).subscribe(
-      (screen) => { this.screen = screen; }
-    );
   }
 
   ngOnInit() {

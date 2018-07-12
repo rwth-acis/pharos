@@ -59,7 +59,7 @@
 
   <div *ngIf="selectedTab === 'Prototype'">
     <div *ngIf="screen.type === 'grapesjs' && githubSignedIn">
-      <app-grapesjs-editor [htmlData]="htmlString" [cssData]="cssString"></app-grapesjs-editor>
+      <app-grapesjs-editor [screen]="screen" [htmlData]="htmlString" [cssData]="cssString"></app-grapesjs-editor>
     </div>
     <div *ngIf="screen.type === 'grapesjs' && !githubSignedIn">
       <p>Please sign in with GitHub to start prototyping.</p>
