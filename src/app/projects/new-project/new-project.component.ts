@@ -15,7 +15,7 @@ export class NewProjectComponent implements OnInit {
 
   constructor(private activeModal: NgbActiveModal,
               private projectService: ProjectService) {
-    this.project = new Project({});
+    this.project = new Project({githubRepoOwner: 'rwth-i5-pharos'});
   }
 
   ngOnInit() {

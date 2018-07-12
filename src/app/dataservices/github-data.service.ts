@@ -14,6 +14,7 @@ export class GithubDataService {
   user: any;
   token: any;
   signedIn = false;
+  org = 'rwth-i5-pharos';
 
   private githubAuth: Subject<any> = new Subject<any>();
 
@@ -47,7 +48,7 @@ export class GithubDataService {
   }
 
   getCode() {
-    window.location.href = 'https://github.com/login/oauth/authorize?client_id=' + environment.github.clientId + '&scope=repo%20delete_repo';
+    window.location.href = 'https://github.com/login/oauth/authorize?client_id=' + environment.github.clientId + '&scope=repo%20delete_repo%20write:org%20read:org';
   }
 
   setToken(token) {
@@ -80,6 +81,14 @@ export class GithubDataService {
       description: description
     };
     return this.http.post(this.path + 'user/repos', params, this.httpOptions);
+  }
+
+  createOrgRepo(name, description) {
+    const params = {
+      name: name,
+      description: description
+    };
+    return this.http.post(this.path + 'orgs/' + this.org + '/repos', params, this.httpOptions);
   }
 
   deleteRepo(repoName, owner) {

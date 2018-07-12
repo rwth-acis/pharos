@@ -27,7 +27,7 @@ export class ProjectService {
   createProject(project: Project) {
     const self = this;
     return Observable.forkJoin([
-      this.githubDataService.createRepo(project.name, project.description),
+      this.githubDataService.createOrgRepo(project.name, project.description),
       this.commentdataService.createThread()
     ]).toPromise().then(
       (results) => {

@@ -1,6 +1,6 @@
 <div *ngIf="project" class="container">
   <h1>{{project.name}}</h1>
-  <button *ngIf="isMaintainer && githubSignedIn" type="button" class="btn btn-primary btn-bottom" (click)="addScreen()">Create Screen</button>
+  <button *ngIf="githubSignedIn" type="button" class="btn btn-primary btn-bottom" (click)="addScreen()">Create Screen</button>
     <div *ngFor="let screen of screens" class="card m-3 card-screen">
       <a (click)="goToScreen(screen.$key)" style="text-decoration:none; cursor: pointer;"><h3 class="card-header">{{screen.name}}</h3></a>
       <div class="card-body">

@@ -21,6 +21,7 @@ export class Project {
   threadedCommentId: any;
   gitHubRepoName: any;
   gitHubUrl: string;
+  githubRepoOwner: string;
 
   constructor(json) {
     this.key = (json.id) ? json.$key : null;
@@ -43,6 +44,7 @@ export class Project {
     this.threadedCommentId = (json.threadedCommentId) ? json.threadedCommentId : null;
     this.gitHubRepoName = (json.gitHubRepoName) ? json.gitHubRepoName : null;
     this.gitHubUrl = (json.gitHubUrl) ? json.gitHubUrl : null;
+    this.githubRepoOwner = (json.githubRepoOwner) ? json.githubRepoOwner : null;
   }
 
 }

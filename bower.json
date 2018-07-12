@@ -11,10 +11,8 @@
     "**/.*",
     "node_modules",
     "bower_components",
-    "src/bower_components",
     "test",
-    "tests",
-    "src/bower_components/"
+    "tests"
   ],
   "dependencies": {
     "webcomponentsjs": "webcomponents/webcomponentsjs#^1.2.0",

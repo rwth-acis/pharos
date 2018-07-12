@@ -94,7 +94,7 @@ export class ProjectComponent implements OnInit, OnDestroy, AfterViewInit {
   addScreen() {
     const modal = this.modal.open(NewScreenComponent);
     modal.componentInstance.githubRepoName = this.project.gitHubRepoName;
-    modal.componentInstance.githubRepoOwner = this.project.createdBy;
+    modal.componentInstance.githubRepoOwner = this.project.githubRepoOwner;
     modal.componentInstance.projectId = this.projectId;
     modal.result.then(
       (data) => {

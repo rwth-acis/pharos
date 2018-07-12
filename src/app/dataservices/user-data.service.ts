@@ -58,7 +58,6 @@ export class UserDataService {
 
   receiveToken(token) {
     this.token = token.split('&')[0];
-    console.log(this.token);
     localStorage.setItem('oidc_ll', this.token);
     localStorage.setItem('timestamp_oidc_ll', new Date().toString());
     this.signedIn = true;
