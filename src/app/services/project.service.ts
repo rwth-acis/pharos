@@ -282,7 +282,7 @@ export class ProjectService {
   }
 
   getVersionImage(screen, version) {
-    return this.githubDataService.getFile(screen.repository, screen.repositoryOwner, screen.name + '/' + screen.name + '.' + screen.imageExtension, version.commitShaHtml).toPromise().then(
+    return this.githubDataService.getFile(screen.repository, screen.repositoryOwner, screen.name + '/' + screen.name + '.' + screen.imageExtension, version.commitShaImage).toPromise().then(
       (result) => {
         return {
           image: result['content']

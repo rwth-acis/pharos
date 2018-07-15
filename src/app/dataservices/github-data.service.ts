@@ -23,7 +23,6 @@ export class GithubDataService {
   constructor(private http: HttpClient) {
     this.httpOptions = {
       headers: new HttpHeaders({
-        'Access-Control-Allow-Origin': '*',
         'Accept': 'application/json',
         'Content-Type': 'application/json'
       })

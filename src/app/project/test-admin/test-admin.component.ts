@@ -176,7 +176,23 @@ export class TestAdminComponent implements OnInit, OnDestroy {
     if (this.screen.type === 'image') {
       this.projectService.getVersionImage(this.screen, version).then(
         (result) => {
+          if (this.imageContent === '') {
+            this.imageContent = result['image'];
+          } else {
+            this.imageContent2 = result['image'];
+          }
           imageData = result['image'];
+          if ( this.view === 'setupQuestionTest') {
+            this.testService.createQuestionTest(this.screen, imageData, this.introduction, this.questions).then(
+              (id) => { this.saveLinkQT(id); }
+            );
+          } else {
+            if (this.imageContent !== '' && this.imageContent2 !== '') {
+              this.testService.createPrefrenceTest(this.screen, this.imageContent, this.imageContent2, this.introduction).then(
+                (id) => { this.saveLinkPT(id); }
+              );
+            }
+          }
         }
       );
     } else {
@@ -184,17 +200,18 @@ export class TestAdminComponent implements OnInit, OnDestroy {
         this.projectService.getVersionGrapesJs(this.screen, version).then(
           (result) => {
             this.htmlData = this.sanitizer.bypassSecurityTrustHtml('<head><style>' + result.css + '</style></head>' + result.html);
+            return result;
           }
         );
       } else {
         this.projectService.getVersionGrapesJs(this.screen, version).then(
           (result) => {
             this.htmlData2 = this.sanitizer.bypassSecurityTrustHtml('<head><style>' + result.css + '</style></head>' + result.html);
+            return result;
           }
         );
       }
     }
-    return imageData;
   }
 
   getImageData() {
